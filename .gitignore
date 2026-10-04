@@ -1,0 +1,58 @@
+# ========================================================
+# Python & Virtual Environments
+# ========================================================
+.venv/
+venv/
+env/
+ENV/
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ========================================================
+# Large Training Datasets & Archives
+# (9,800+ training images - keep out of Git)
+# ========================================================
+RAF-AU-*/
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# ========================================================
+# Generated Reports & Runtime Logs
+# ========================================================
+*.pdf
+TestDb_Batch_Report.pdf
+*.log
+*.tmp
+*.temp
+
+# ========================================================
+# IDE & System Files
+# ========================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ========================================================
+# Testing & Diagnostics
+# ========================================================
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# ========================================================
+# Model Weights (Optional: Uncomment below if hosting externally
+# instead of pushing via Git LFS / direct commit)
+# ========================================================
+# models/*.pth

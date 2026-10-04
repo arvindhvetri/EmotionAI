@@ -1,0 +1,2545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion AI Studio | 76 Action Units & Grad-CAM Explainability</title>
+    <meta name="description" content="State-of-the-art Facial Action Unit detection and Emotion Recognition powered by VGGFace2 InceptionResnetV1, canonical FACS rules, and Grad-CAM visual explainability.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #080c15;
+            --bg-card: rgba(17, 24, 39, 0.72);
+            --bg-card-hover: rgba(26, 36, 56, 0.85);
+            --bg-glass-input: rgba(15, 23, 42, 0.65);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-glass-hover: rgba(129, 140, 248, 0.35);
+            --border-glass-active: rgba(99, 102, 241, 0.6);
+            
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.4);
+            --secondary: #8b5cf6;
+            --accent-cyan: #06b6d4;
+            --accent-emerald: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-rose: #f43f5e;
+            
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 26px;
+            
+            --shadow-subtle: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --shadow-panel: 0 20px 50px -10px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 30px rgba(99, 102, 241, 0.25);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 10%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 85% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 45%),
+                radial-gradient(circle at 50% 90%, rgba(6, 182, 212, 0.08) 0%, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.25);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(129, 140, 248, 0.5);
+        }
+
+        /* Header Navigation */
+        .app-header {
+            height: 68px;
+            background: rgba(8, 12, 21, 0.82);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border-glass);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 16px var(--primary-glow);
+        }
+
+        .brand-logo-icon svg {
+            width: 22px;
+            height: 22px;
+            fill: none;
+            stroke: white;
+            stroke-width: 2;
+        }
+
+        .brand-title-wrap h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(to right, #ffffff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-title-wrap h1 span {
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.68rem;
+            padding: 2px 7px;
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.35);
+            border-radius: 6px;
+            color: #a5b4fc;
+            text-transform: uppercase;
+        }
+
+        .header-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            padding: 6px 14px;
+            border-radius: 50px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-emerald);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-emerald);
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.9); }
+        }
+
+        .btn-header-benchmark {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            color: #6ee7b7;
+            padding: 7px 16px;
+            border-radius: 50px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .btn-header-benchmark:hover {
+            background: rgba(16, 185, 129, 0.22);
+            border-color: rgba(16, 185, 129, 0.6);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+        }
+
+        /* Main Workspace 2-Panel Layout */
+        .workspace-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 440px 1fr;
+            gap: 1.5rem;
+            padding: 1.5rem 2rem 2rem 2rem;
+            max-width: 1750px;
+            margin: 0 auto;
+            width: 100%;
+            align-items: start;
+        }
+
+        /* Glass Panel Container Common Styles */
+        .glass-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-panel);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: border-color 0.3s ease;
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .panel-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-glass);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(15, 23, 42, 0.4);
+        }
+
+        .panel-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-step-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            padding: 2px 7px;
+            border-radius: 6px;
+        }
+
+        .panel-header h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            letter-spacing: -0.01em;
+        }
+
+        .panel-body {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        /* Left Panel Specifics (Input Studio) */
+        .left-panel {
+            max-height: calc(100vh - 110px);
+            overflow-y: auto;
+            position: sticky;
+            top: 86px;
+        }
+
+        /* Tab Switcher */
+        .input-tabs {
+            display: flex;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 4px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-glass);
+            gap: 4px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 8px 10px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .tab-btn.active {
+            background: rgba(99, 102, 241, 0.2);
+            color: #ffffff;
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: #cbd5e1;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Drop Zone */
+        .drop-zone {
+            border: 2px dashed rgba(129, 140, 248, 0.28);
+            border-radius: var(--radius-lg);
+            background: rgba(15, 23, 42, 0.45);
+            padding: 2rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: #818cf8;
+            background: rgba(99, 102, 241, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.2);
+        }
+
+        .drop-icon-wrap {
+            width: 52px;
+            height: 52px;
+            margin: 0 auto 12px;
+            border-radius: 50%;
+            background: rgba(99, 102, 241, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #818cf8;
+            transition: transform 0.3s ease;
+        }
+
+        .drop-zone:hover .drop-icon-wrap {
+            transform: scale(1.1);
+        }
+
+        .drop-zone h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 4px;
+        }
+
+        .drop-zone p {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .drop-badges {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .drop-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            padding: 2px 7px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #94a3b8;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        /* Samples Grid */
+        .samples-intro {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .samples-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .sample-card {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sample-card:hover {
+            background: rgba(99, 102, 241, 0.12);
+            border-color: rgba(129, 140, 248, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .sample-card.active {
+            border-color: #818cf8;
+            background: rgba(99, 102, 241, 0.2);
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.25);
+        }
+
+        .sample-thumb {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sample-info {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sample-name {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sample-tag {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+        }
+
+        /* Camera Tab */
+        .webcam-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .webcam-video-wrap {
+            width: 100%;
+            height: 180px;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background: #000;
+            border: 1px solid var(--border-glass);
+            position: relative;
+        }
+
+        #webcam-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .webcam-controls {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .btn-camera {
+            flex: 1;
+            padding: 8px;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border-glass);
+            background: rgba(255, 255, 255, 0.05);
+            color: #f1f5f9;
+            transition: all 0.2s;
+        }
+
+        .btn-camera:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: rgba(99, 102, 241, 0.4);
+        }
+
+        /* Selected Input Preview Card */
+        .selected-preview-card {
+            display: none;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            padding: 12px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .selected-preview-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .selected-preview-img {
+            width: 64px;
+            height: 64px;
+            border-radius: var(--radius-md);
+            object-fit: cover;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .selected-preview-meta {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .selected-preview-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 3px;
+        }
+
+        .selected-preview-details {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon-clear {
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            color: #f87171;
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-icon-clear:hover {
+            background: rgba(239, 68, 68, 0.25);
+            border-color: rgba(239, 68, 68, 0.5);
+            transform: scale(1.05);
+        }
+
+        /* Action Buttons */
+        .btn-analyze-primary {
+            width: 100%;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: var(--radius-md);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-analyze-primary::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .btn-analyze-primary:hover:not(:disabled)::before {
+            left: 100%;
+        }
+
+        .btn-analyze-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(99, 102, 241, 0.6);
+        }
+
+        .btn-analyze-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Benchmark Card in Left Panel */
+        .benchmark-box {
+            background: rgba(16, 185, 129, 0.05);
+            border: 1px solid rgba(16, 185, 129, 0.18);
+            border-radius: var(--radius-lg);
+            padding: 1.1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .benchmark-box h4 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #6ee7b7;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .benchmark-box p {
+            font-size: 0.74rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .btn-benchmark-action {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+            box-shadow: 0 3px 12px rgba(16, 185, 129, 0.3);
+            margin-top: 4px;
+        }
+
+        .btn-benchmark-action:hover:not(:disabled) {
+            box-shadow: 0 5px 18px rgba(16, 185, 129, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .btn-benchmark-action:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* FACS Guide Accordion */
+        .facs-guide-toggle {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 10px 14px;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .facs-guide-toggle:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #e2e8f0;
+        }
+
+        .facs-guide-content {
+            display: none;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border-glass);
+            border-top: none;
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+            padding: 12px;
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-top: -6px;
+        }
+
+        .facs-guide-item {
+            margin-bottom: 6px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .facs-guide-item strong {
+            color: #38bdf8;
+        }
+
+        /* ========================================= */
+        /* RIGHT PANEL: Explainability & Output Studio */
+        /* ========================================= */
+        .right-panel {
+            min-height: calc(100vh - 110px);
+        }
+
+        /* State A: Idle State */
+        .idle-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 4rem 2rem;
+            min-height: 520px;
+            gap: 1.5rem;
+        }
+
+        .idle-graphic-wrap {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .idle-pulse-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px dashed rgba(99, 102, 241, 0.3);
+            animation: spin-slow 20s linear infinite;
+        }
+
+        .idle-pulse-ring-inner {
+            position: absolute;
+            width: 75%;
+            height: 75%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
+            animation: pulse-grow 3s ease-in-out infinite;
+        }
+
+        @keyframes spin-slow {
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse-grow {
+            0%, 100% { transform: scale(0.9); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+
+        .idle-face-icon {
+            position: relative;
+            z-index: 2;
+            width: 56px;
+            height: 56px;
+            color: #818cf8;
+        }
+
+        .idle-state h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+
+        .idle-state p {
+            max-width: 480px;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .idle-pills-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 0.5rem;
+        }
+
+        .idle-feature-pill {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            border-radius: 50px;
+            padding: 8px 16px;
+            font-size: 0.78rem;
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .idle-feature-pill span {
+            color: #818cf8;
+            font-weight: 700;
+        }
+
+        /* State B: Scanner / Loading State */
+        .loading-state {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            min-height: 520px;
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .scanner-card {
+            width: 220px;
+            height: 220px;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            position: relative;
+            border: 2px solid rgba(129, 140, 248, 0.4);
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
+            background: #000;
+        }
+
+        .scanner-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.7) contrast(1.2);
+        }
+
+        .scanner-laser {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #38bdf8, #818cf8, transparent);
+            box-shadow: 0 0 15px #38bdf8, 0 0 30px #818cf8;
+            animation: scan-vertical 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes scan-vertical {
+            0% { top: 2%; }
+            100% { top: 96%; }
+        }
+
+        .loading-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+            max-width: 360px;
+            text-align: left;
+        }
+
+        .loading-step-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid var(--border-glass);
+            transition: all 0.3s;
+        }
+
+        .loading-step-item.active {
+            color: #f8fafc;
+            border-color: rgba(99, 102, 241, 0.4);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .loading-step-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        .loading-step-item.active .loading-step-dot {
+            background: #38bdf8;
+            box-shadow: 0 0 8px #38bdf8;
+            animation: pulse-glow 1s infinite;
+        }
+
+        /* State C: Results Container */
+        .results-state {
+            display: none;
+            flex-direction: column;
+            gap: 1.5rem;
+            animation: fadeIn 0.4s ease;
+        }
+
+        /* 1. Hero Emotion Banner */
+        .emotion-hero-card {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.12) 100%);
+            border: 1px solid rgba(129, 140, 248, 0.3);
+            border-radius: var(--radius-xl);
+            padding: 1.5rem 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .emotion-hero-card::after {
+            content: '';
+            position: absolute;
+            right: -30px;
+            bottom: -30px;
+            width: 160px;
+            height: 160px;
+            background: radial-gradient(circle, var(--emotion-glow-color, rgba(99, 102, 241, 0.25)) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .emotion-hero-left {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .emotion-emoji-badge {
+            font-size: 3rem;
+            line-height: 1;
+            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
+        }
+
+        .emotion-title-area {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .emotion-category-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--emotion-accent-color, #38bdf8);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .emotion-primary-label {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #ffffff;
+            line-height: 1.1;
+        }
+
+        .emotion-focal-desc {
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            margin-top: 2px;
+        }
+
+        .emotion-rule-pill {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-glass);
+            padding: 8px 14px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        /* 2. Visual Explainability Studio (Grad-CAM Split View) */
+        .explainability-studio {
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-xl);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .studio-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .studio-title-wrap h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .studio-title-wrap p {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+        }
+
+        /* Mode Switcher Buttons */
+        .studio-mode-switcher {
+            display: flex;
+            background: rgba(10, 15, 26, 0.6);
+            padding: 3px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-glass);
+            gap: 3px;
+        }
+
+        .mode-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background: rgba(99, 102, 241, 0.25);
+            color: #ffffff;
+            border: 1px solid rgba(99, 102, 241, 0.4);
+        }
+
+        .mode-btn:hover:not(.active) {
+            color: #cbd5e1;
+        }
+
+        /* Comparison Display Modes */
+        .comparison-stage {
+            width: 100%;
+            position: relative;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            background: #000;
+            border: 1px solid var(--border-glass);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Mode 1: Split Slider */
+        .slider-comparison-container {
+            position: relative;
+            width: 100%;
+            height: 380px;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .slider-img {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #050811;
+        }
+
+        .slider-overlay-wrap {
+            position: absolute;
+            top: 0; left: 0;
+            width: 50%;
+            height: 100%;
+            overflow: hidden;
+            border-right: 2px solid #818cf8;
+            box-shadow: 4px 0 16px rgba(129, 140, 248, 0.5);
+            z-index: 2;
+        }
+
+        .slider-overlay-img {
+            position: absolute;
+            top: 0; left: 0;
+            height: 100%;
+            max-width: none;
+            object-fit: contain;
+            background: #050811;
+        }
+
+        .slider-handle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 38px;
+            height: 38px;
+            background: #818cf8;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            cursor: ew-resize;
+            z-index: 10;
+            box-shadow: 0 0 20px rgba(129, 140, 248, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: transform 0.15s ease;
+        }
+
+        .slider-handle:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .slider-badge-left, .slider-badge-right {
+            position: absolute;
+            bottom: 12px;
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            backdrop-filter: blur(8px);
+            z-index: 5;
+        }
+
+        .slider-badge-left {
+            left: 12px;
+            background: rgba(15, 23, 42, 0.85);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        .slider-badge-right {
+            right: 12px;
+            background: rgba(15, 23, 42, 0.85);
+            color: #a855f7;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        /* Mode 2: Side by Side Grid */
+        .side-by-side-grid {
+            display: none;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 12px;
+            background: #050811;
+        }
+
+        .sbs-box {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sbs-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sbs-img {
+            width: 100%;
+            height: 280px;
+            object-fit: contain;
+            background: #0b0f19;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-glass);
+        }
+
+        /* Mode 3: Overlay Blend */
+        .overlay-blend-container {
+            display: none;
+            flex-direction: column;
+            padding: 12px;
+            gap: 12px;
+            background: #050811;
+        }
+
+        .overlay-blend-stage {
+            position: relative;
+            width: 100%;
+            height: 320px;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background: #0b0f19;
+        }
+
+        .blend-base-img, .blend-heatmap-img {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .blend-controls {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 4px 8px;
+        }
+
+        .blend-slider {
+            flex: 1;
+            height: 6px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .blend-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #818cf8;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(129, 140, 248, 0.6);
+        }
+
+        /* Explainability Annotation Note */
+        .cam-explanation-note {
+            background: rgba(56, 189, 248, 0.08);
+            border-left: 3px solid #38bdf8;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            padding: 10px 14px;
+            font-size: 0.8rem;
+            color: #cbd5e1;
+            line-height: 1.5;
+        }
+
+        .cam-explanation-note strong {
+            color: #38bdf8;
+        }
+
+        /* 3. Action Units Section */
+        .au-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .au-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .au-section-header h4 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .au-count-tag {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            padding: 3px 8px;
+            border-radius: 50px;
+        }
+
+        .au-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .au-row-card {
+            background: rgba(15, 23, 42, 0.45);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: all 0.25s ease;
+        }
+
+        .au-row-card:hover {
+            background: rgba(26, 36, 56, 0.6);
+            border-color: rgba(129, 140, 248, 0.3);
+            transform: translateX(4px);
+        }
+
+        .au-row-card.primary-driver {
+            border-color: rgba(129, 140, 248, 0.5);
+            background: linear-gradient(90deg, rgba(99, 102, 241, 0.15), rgba(15, 23, 42, 0.5));
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.12);
+        }
+
+        .au-row-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .au-identity {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .au-code-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            font-weight: 700;
+            background: rgba(99, 102, 241, 0.2);
+            color: #a5b4fc;
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        .au-row-card.primary-driver .au-code-badge {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+        }
+
+        .au-name-desc {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #f1f5f9;
+        }
+
+        .au-confidence-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #38bdf8;
+        }
+
+        .au-progress-track {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .au-progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .au-row-card.primary-driver .au-progress-fill {
+            background: linear-gradient(90deg, #38bdf8, #818cf8, #d946ef);
+        }
+
+        /* 4. Results Action Toolbar */
+        .results-actions-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 0.5rem;
+            border-top: 1px solid var(--border-glass);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .action-btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action-tool {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-action-tool:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid var(--border-glass-active);
+            color: #ffffff;
+            padding: 12px 20px;
+            border-radius: var(--radius-md);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1080px) {
+            .workspace-container {
+                grid-template-columns: 1fr;
+            }
+            .left-panel {
+                max-height: none;
+                position: static;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .app-header {
+                padding: 0 1rem;
+            }
+            .workspace-container {
+                padding: 1rem;
+            }
+            .header-meta .status-pill {
+                display: none;
+            }
+            .emotion-hero-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .slider-comparison-container {
+                height: 280px;
+            }
+            .side-by-side-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="app-header">
+        <div class="brand-container">
+            <div class="brand-logo-icon">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                    <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                    <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                </svg>
+            </div>
+            <div class="brand-title-wrap">
+                <h1>EMOTION <span>AI</span> <span class="brand-tag">v2.4 FACS</span></h1>
+            </div>
+        </div>
+
+        <div class="header-meta">
+            <div class="status-pill">
+                <div class="status-dot"></div>
+                <span>InceptionResnetV1 • 76 AUs</span>
+            </div>
+            <button class="btn-header-benchmark" id="top-benchmark-btn" onclick="generateReport()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                <span>Benchmark PDF</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main 2-Panel Workspace -->
+    <main class="workspace-container">
+        
+        <!-- LEFT PANEL: Input & Acquisition Hub -->
+        <aside class="glass-panel left-panel">
+            <div class="panel-header">
+                <div class="panel-title-wrap">
+                    <span class="panel-step-badge">01</span>
+                    <h2>Input Source</h2>
+                </div>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Facial Acquisition</span>
+            </div>
+
+            <div class="panel-body">
+                <!-- Input Mode Switcher Tabs -->
+                <div class="input-tabs">
+                    <button class="tab-btn active" id="tab-btn-upload" onclick="switchInputTab('upload')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        Upload
+                    </button>
+                    <button class="tab-btn" id="tab-btn-samples" onclick="switchInputTab('samples')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                        Samples
+                    </button>
+                    <button class="tab-btn" id="tab-btn-webcam" onclick="switchInputTab('webcam')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 7l-7 5 7 5V7z"></path>
+                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                        </svg>
+                        Camera
+                    </button>
+                </div>
+
+                <!-- Tab 1: Upload Dropzone -->
+                <div class="tab-content active" id="tab-content-upload">
+                    <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+                        <div class="drop-icon-wrap">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                        </div>
+                        <h3>Drop facial image here</h3>
+                        <p>or click to browse your local device</p>
+                        <div class="drop-badges">
+                            <span class="drop-badge">JPG / PNG / WEBP</span>
+                            <span class="drop-badge">Ctrl+V Paste</span>
+                        </div>
+                        <input type="file" id="file-input" accept="image/jpeg, image/png, image/jpg, image/webp" style="display: none;">
+                    </div>
+                </div>
+
+                <!-- Tab 2: TestDb Quick Samples -->
+                <div class="tab-content" id="tab-content-samples">
+                    <p class="samples-intro">Instant test images indexed from RAF-DB TestDb validation dataset:</p>
+                    <div class="samples-grid" id="samples-grid-container">
+                        <!-- Populated dynamically via /api/samples -->
+                        <div style="grid-column: 1/-1; text-align: center; padding: 1rem; color: var(--text-muted); font-size: 0.8rem;">
+                            Loading sample test set...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Webcam Capture -->
+                <div class="tab-content" id="tab-content-webcam">
+                    <div class="webcam-container">
+                        <div class="webcam-video-wrap">
+                            <video id="webcam-video" autoplay playsinline muted></video>
+                        </div>
+                        <div class="webcam-controls">
+                            <button class="btn-camera" id="btn-camera-toggle" onclick="toggleWebcam()">Start Camera</button>
+                            <button class="btn-camera" id="btn-camera-snap" onclick="captureWebcamFrame()" disabled>Capture Face</button>
+                        </div>
+                        <canvas id="webcam-canvas" style="display: none;"></canvas>
+                    </div>
+                </div>
+
+                <!-- Selected Image Preview Card -->
+                <div class="selected-preview-card" id="selected-preview-card">
+                    <div class="selected-preview-content">
+                        <img src="" alt="Selected Preview" class="selected-preview-img" id="selected-preview-img">
+                        <div class="selected-preview-meta">
+                            <div class="selected-preview-name" id="selected-preview-name">image.jpg</div>
+                            <div class="selected-preview-details">
+                                <span id="selected-preview-size">0 KB</span>
+                                <span>•</span>
+                                <span id="selected-preview-status" style="color: #38bdf8;">Ready</span>
+                            </div>
+                        </div>
+                        <button class="btn-icon-clear" title="Remove selected image" onclick="clearSelectedImage()">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Primary Analysis CTA -->
+                <button class="btn-analyze-primary" id="btn-analyze" onclick="analyzeCurrentImage()" disabled>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                    </svg>
+                    <span>Analyze Facial Expression</span>
+                </button>
+
+                <!-- Batch PDF Benchmark Card -->
+                <div class="benchmark-box">
+                    <h4>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        Batch TestDb Benchmark
+                    </h4>
+                    <p>Execute an automated multi-class evaluation across 35 randomized TestDb samples with per-emotion AU validation.</p>
+                    <button class="btn-benchmark-action" id="btn-batch-report" onclick="generateReport()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Generate & Download PDF
+                    </button>
+                </div>
+
+                <!-- FACS Quick Reference Accordion -->
+                <div>
+                    <div class="facs-guide-toggle" onclick="toggleFacsGuide()">
+                        <span>Ekman FACS AU Rule Reference</span>
+                        <svg id="facs-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition: transform 0.2s;">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </div>
+                    <div class="facs-guide-content" id="facs-guide-content">
+                        <div class="facs-guide-item"><strong>Happiness:</strong> AU12 (Lip Corner Puller) + AU6 (Cheek Raiser - Duchenne)</div>
+                        <div class="facs-guide-item"><strong>Surprise:</strong> AU1+2 (Brow Raisers) + AU5 (Lid Raiser) + AU26/27 (Jaw Drop)</div>
+                        <div class="facs-guide-item"><strong>Fear:</strong> AU20 (Lip Stretcher) + AU1+2 + AU27/16 (Mouth Stretch)</div>
+                        <div class="facs-guide-item"><strong>Sadness:</strong> AU1+4 (Medial Brow Knot) + AU15/17 (Commissure Depressors)</div>
+                        <div class="facs-guide-item"><strong>Disgust:</strong> AU9 (Nose Wrinkler) + AU10 (Upper Lip Raiser)</div>
+                        <div class="facs-guide-item"><strong>Anger:</strong> AU4 (Brow Lowerer) + AU23/24 (Lip Tightener/Pressor)</div>
+                        <div class="facs-guide-item"><strong>Contempt:</strong> L12/R12 (Unilateral Smirk) or AU14 (Dimpler)</div>
+                    </div>
+                </div>
+
+            </div>
+        </aside>
+
+        <!-- RIGHT PANEL: Explainability & Inference Output -->
+        <section class="glass-panel right-panel">
+            <div class="panel-header">
+                <div class="panel-title-wrap">
+                    <span class="panel-step-badge">02</span>
+                    <h2>Explainability & Inference Studio</h2>
+                </div>
+                <span id="studio-status-indicator" style="font-size: 0.75rem; color: var(--text-muted);">Awaiting Input</span>
+            </div>
+
+            <div class="panel-body">
+                
+                <!-- State A: Idle State -->
+                <div class="idle-state" id="idle-state">
+                    <div class="idle-graphic-wrap">
+                        <div class="idle-pulse-ring"></div>
+                        <div class="idle-pulse-ring-inner"></div>
+                        <svg class="idle-face-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                            <rect x="3" y="3" width="18" height="18" rx="6"></rect>
+                            <circle cx="9" cy="10" r="1.5"></circle>
+                            <circle cx="15" cy="10" r="1.5"></circle>
+                            <path d="M8 15s1.5 2 4 2 4-2 4-2"></path>
+                            <line x1="12" y1="2" x2="12" y2="4"></line>
+                            <line x1="12" y1="20" x2="12" y2="22"></line>
+                            <line x1="2" y1="12" x2="4" y2="12"></line>
+                            <line x1="20" y1="12" x2="22" y2="12"></line>
+                        </svg>
+                    </div>
+                    <h3>Ready for Facial Analysis</h3>
+                    <p>Upload a face portrait or click any TestDb emotion sample in the left panel to execute deep Action Unit feature extraction and generate Grad-CAM explainability heatmaps.</p>
+                    <div class="idle-pills-row">
+                        <div class="idle-feature-pill"><span>76</span> Facial Action Units</div>
+                        <div class="idle-feature-pill"><span>Block8</span> Grad-CAM Heatmap</div>
+                        <div class="idle-feature-pill"><span>Ekman FACS</span> Psychological Engine</div>
+                    </div>
+                </div>
+
+                <!-- State B: Processing / Scanning State -->
+                <div class="loading-state" id="loading-state">
+                    <div class="scanner-card">
+                        <img src="" alt="Scanning Target" class="scanner-img" id="scanner-img-target">
+                        <div class="scanner-laser"></div>
+                    </div>
+                    <div class="loading-steps">
+                        <div class="loading-step-item active" id="step-1">
+                            <div class="loading-step-dot"></div>
+                            <span>Preprocessing image (224×224 Normalization)</span>
+                        </div>
+                        <div class="loading-step-item active" id="step-2">
+                            <div class="loading-step-dot"></div>
+                            <span>VGGFace2 InceptionResnetV1 Forward Pass</span>
+                        </div>
+                        <div class="loading-step-item active" id="step-3">
+                            <div class="loading-step-dot"></div>
+                            <span>Computing Grad-CAM Spatial Activations</span>
+                        </div>
+                        <div class="loading-step-item active" id="step-4">
+                            <div class="loading-step-dot"></div>
+                            <span>Evaluating Canonical FACS Psychological Rules</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- State C: Complete Results Studio -->
+                <div class="results-state" id="results-state">
+                    
+                    <!-- 1. Hero Emotion Banner -->
+                    <div class="emotion-hero-card" id="emotion-hero-card">
+                        <div class="emotion-hero-left">
+                            <div class="emotion-emoji-badge" id="res-emotion-emoji">😊</div>
+                            <div class="emotion-title-area">
+                                <span class="emotion-category-tag" id="res-emotion-tag">FACS CLASSIFIED EMOTION</span>
+                                <h3 class="emotion-primary-label" id="res-emotion-label">Happiness</h3>
+                                <p class="emotion-focal-desc" id="res-emotion-focal">Genuine positive affect indicated by zygomaticus smile with orbicularis cheek lift.</p>
+                            </div>
+                        </div>
+                        <div class="emotion-rule-pill" id="res-emotion-rule">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            <span id="res-rule-text">Ekman Duchenne Smile Rule</span>
+                        </div>
+                    </div>
+
+                    <!-- 2. Visual Explainability Center -->
+                    <div class="explainability-studio">
+                        <div class="studio-header">
+                            <div class="studio-title-wrap">
+                                <h3>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <path d="M12 16v-4"></path>
+                                        <path d="M12 8h.01"></path>
+                                    </svg>
+                                    Visual Explainability (Grad-CAM)
+                                </h3>
+                                <p id="studio-subtext">Spatial activation heatmap computed on InceptionResnetV1 block8</p>
+                            </div>
+
+                            <div class="studio-mode-switcher">
+                                <button class="mode-btn active" id="mode-btn-slider" onclick="switchCamMode('slider')">Split Slider</button>
+                                <button class="mode-btn" id="mode-btn-sbs" onclick="switchCamMode('sbs')">Side-by-Side</button>
+                                <button class="mode-btn" id="mode-btn-blend" onclick="switchCamMode('blend')">Overlay Blend</button>
+                            </div>
+                        </div>
+
+                        <!-- Comparison Stage -->
+                        <div class="comparison-stage">
+                            <!-- View 1: Interactive Split Slider -->
+                            <div class="slider-comparison-container" id="slider-comparison-box">
+                                <img src="" alt="Grad-CAM Heatmap" class="slider-img" id="slider-heatmap-img">
+                                <div class="slider-overlay-wrap" id="slider-overlay-wrap">
+                                    <img src="" alt="Original Input" class="slider-overlay-img" id="slider-original-img">
+                                </div>
+                                <div class="slider-handle" id="slider-handle">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                        <polyline points="8 17 3 12 8 7"></polyline>
+                                        <polyline points="16 7 21 12 16 17"></polyline>
+                                    </svg>
+                                </div>
+                                <span class="slider-badge-left">Original Face</span>
+                                <span class="slider-badge-right">Grad-CAM Heatmap</span>
+                            </div>
+
+                            <!-- View 2: Side-by-Side Grid -->
+                            <div class="side-by-side-grid" id="sbs-grid-box">
+                                <div class="sbs-box">
+                                    <div class="sbs-label">
+                                        <span>ORIGINAL INPUT</span>
+                                        <span style="color: #38bdf8;">Normalized 224x224</span>
+                                    </div>
+                                    <img src="" alt="Original" class="sbs-img" id="sbs-original-img">
+                                </div>
+                                <div class="sbs-box">
+                                    <div class="sbs-label">
+                                        <span>GRAD-CAM HEATMAP</span>
+                                        <span style="color: #a855f7;">Block8 Attention</span>
+                                    </div>
+                                    <img src="" alt="Grad-CAM" class="sbs-img" id="sbs-cam-img">
+                                </div>
+                            </div>
+
+                            <!-- View 3: Overlay Blend -->
+                            <div class="overlay-blend-container" id="overlay-blend-box">
+                                <div class="overlay-blend-stage">
+                                    <img src="" alt="Base" class="blend-base-img" id="blend-base-img">
+                                    <img src="" alt="Heatmap" class="blend-heatmap-img" id="blend-cam-img" style="opacity: 0.65;">
+                                </div>
+                                <div class="blend-controls">
+                                    <span style="font-size: 0.75rem; color: var(--text-muted);">Original</span>
+                                    <input type="range" min="0" max="100" value="65" class="blend-slider" id="blend-range-slider" oninput="adjustBlendOpacity(this.value)">
+                                    <span style="font-size: 0.75rem; color: #a855f7;">Heatmap</span>
+                                    <span id="blend-opacity-val" style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-secondary); width: 35px; text-align: right;">65%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Explainability Callout Text -->
+                        <div class="cam-explanation-note" id="cam-explanation-note">
+                            <strong>Reasoning:</strong> The Grad-CAM heatmap above highlights the facial muscle regions (in intense red/amber) that the model focused on to predict primary Action Unit <strong id="note-top-au">AU 12</strong>.
+                        </div>
+                    </div>
+
+                    <!-- 3. Top Action Units Breakdown -->
+                    <div class="au-section">
+                        <div class="au-section-header">
+                            <h4>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2">
+                                    <path d="M18 20V10"></path>
+                                    <path d="M12 20V4"></path>
+                                    <path d="M6 20v-6"></path>
+                                </svg>
+                                Detected Facial Action Units (Ekman FACS)
+                            </h4>
+                            <span class="au-count-tag" id="au-count-tag">Top Detected</span>
+                        </div>
+
+                        <div class="au-list" id="au-list-container">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <!-- 4. Result Actions Bar -->
+                    <div class="results-actions-bar">
+                        <div class="action-btn-group">
+                            <button class="btn-action-tool" onclick="downloadGradCam()">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="7 10 12 15 17 10"></polyline>
+                                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                                </svg>
+                                Save Heatmap
+                            </button>
+                            <button class="btn-action-tool" onclick="copyAnalysisJson()">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                                Copy JSON
+                            </button>
+                        </div>
+
+                        <button class="btn-action-tool" onclick="clearSelectedImage()" style="color: #cbd5e1;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="1 4 1 10 7 10"></polyline>
+                                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                            </svg>
+                            Analyze Another
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Toast Notification Element -->
+    <div class="toast" id="app-toast">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        <span id="toast-message">Operation successful!</span>
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        // State variables
+        let selectedFile = null;
+        let lastAnalysisResult = null;
+        let activeCamMode = 'slider';
+        let webcamStream = null;
+        let isDraggingSlider = false;
+
+        // Elements
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const previewCard = document.getElementById('selected-preview-card');
+        const previewImg = document.getElementById('selected-preview-img');
+        const previewName = document.getElementById('selected-preview-name');
+        const previewSize = document.getElementById('selected-preview-size');
+        const analyzeBtn = document.getElementById('btn-analyze');
+        
+        // Right Panel States
+        const idleState = document.getElementById('idle-state');
+        const loadingState = document.getElementById('loading-state');
+        const resultsState = document.getElementById('results-state');
+        const scannerImgTarget = document.getElementById('scanner-img-target');
+        const studioStatusIndicator = document.getElementById('studio-status-indicator');
+
+        // Comparison elements
+        const sliderContainer = document.getElementById('slider-comparison-box');
+        const sliderOverlayWrap = document.getElementById('slider-overlay-wrap');
+        const sliderHandle = document.getElementById('slider-handle');
+        const sliderHeatmapImg = document.getElementById('slider-heatmap-img');
+        const sliderOriginalImg = document.getElementById('slider-original-img');
+        const sbsGridBox = document.getElementById('sbs-grid-box');
+        const sbsOriginalImg = document.getElementById('sbs-original-img');
+        const sbsCamImg = document.getElementById('sbs-cam-img');
+        const overlayBlendBox = document.getElementById('overlay-blend-box');
+        const blendBaseImg = document.getElementById('blend-base-img');
+        const blendCamImg = document.getElementById('blend-cam-img');
+
+        // Initialize on DOM Ready
+        document.addEventListener('DOMContentLoaded', () => {
+            setupDragAndDrop();
+            setupClipboardPaste();
+            setupSplitSlider();
+            loadSamplesGallery();
+        });
+
+        // Tab Switching in Left Panel
+        function switchInputTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+            const activeContent = document.getElementById(`tab-content-${tabId}`);
+            if (activeBtn) activeBtn.classList.add('active');
+            if (activeContent) activeContent.classList.add('active');
+
+            // If switching away from webcam, stop stream
+            if (tabId !== 'webcam' && webcamStream) {
+                stopWebcam();
+            }
+        }
+
+        // Drag & Drop Setup
+        function setupDragAndDrop() {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(name => {
+                dropZone.addEventListener(name, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(name => {
+                dropZone.addEventListener(name, () => dropZone.classList.add('dragover'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(name => {
+                dropZone.addEventListener(name, () => dropZone.classList.remove('dragover'), false);
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    processSelectedFile(e.dataTransfer.files[0]);
+                }
+            });
+
+            fileInput.addEventListener('change', function() {
+                if (this.files && this.files.length > 0) {
+                    processSelectedFile(this.files[0]);
+                }
+            });
+        }
+
+        // Clipboard Image Paste Setup (Ctrl+V)
+        function setupClipboardPaste() {
+            window.addEventListener('paste', (e) => {
+                const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+                for (let index in items) {
+                    const item = items[index];
+                    if (item.kind === 'file' && item.type.startsWith('image/')) {
+                        const blob = item.getAsFile();
+                        const pastedFile = new File([blob], `pasted_face_${Date.now()}.png`, { type: item.type });
+                        processSelectedFile(pastedFile);
+                        showToast("Pasted image from clipboard!");
+                        break;
+                    }
+                }
+            });
+        }
+
+        function isImageFile(file) {
+            if (!file) return false;
+            if (file.type && file.type.startsWith('image/')) return true;
+            const name = (file.name || '').toLowerCase();
+            return name.endsWith('.jpg') || name.endsWith('.jpeg') || name.endsWith('.png') || name.endsWith('.webp') || name.endsWith('.bmp');
+        }
+
+        // Process and display selected file
+        function processSelectedFile(file) {
+            if (!isImageFile(file)) {
+                showToast("Please select a valid image file (JPG, PNG, WEBP)", true);
+                return;
+            }
+
+            selectedFile = file;
+            previewName.innerText = file.name;
+            previewSize.innerText = formatFileSize(file.size);
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const dataUrl = e.target.result;
+                previewImg.src = dataUrl;
+                previewCard.style.display = 'block';
+                analyzeBtn.disabled = false;
+                analyzeBtn.innerHTML = `
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                    </svg>
+                    <span>Analyze Facial Expression</span>
+                `;
+
+                // If currently showing results, reset right panel to idle preview
+                idleState.style.display = 'flex';
+                loadingState.style.display = 'none';
+                resultsState.style.display = 'none';
+                studioStatusIndicator.innerText = "Ready to analyze";
+
+                setTimeout(() => {
+                    previewCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 100);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Clear currently selected image
+        function clearSelectedImage() {
+            selectedFile = null;
+            lastAnalysisResult = null;
+            fileInput.value = '';
+            previewCard.style.display = 'none';
+            analyzeBtn.disabled = true;
+
+            // Deselect any sample card
+            document.querySelectorAll('.sample-card').forEach(c => c.classList.remove('active'));
+
+            // Reset right panel
+            idleState.style.display = 'flex';
+            loadingState.style.display = 'none';
+            resultsState.style.display = 'none';
+            studioStatusIndicator.innerText = "Awaiting Input";
+        }
+
+        // Load Samples from /api/samples
+        async function loadSamplesGallery() {
+            const container = document.getElementById('samples-grid-container');
+            try {
+                const res = await fetch('/api/samples');
+                if (!res.ok) throw new Error("Failed to load samples");
+                const data = await res.json();
+
+                if (!data.samples || data.samples.length === 0) {
+                    container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); font-size: 0.8rem;">No samples found in TestDb.</div>`;
+                    return;
+                }
+
+                container.innerHTML = '';
+                data.samples.forEach(sample => {
+                    const card = document.createElement('div');
+                    card.className = 'sample-card';
+                    card.id = `sample-${sample.folder}`;
+                    card.onclick = () => selectSampleItem(sample);
+
+                    card.innerHTML = `
+                        <img src="${sample.url}" alt="${sample.emotion}" class="sample-thumb" loading="lazy">
+                        <div class="sample-info">
+                            <span class="sample-name">${sample.emoji} ${sample.emotion}</span>
+                            <span class="sample-tag">${sample.filename.substring(0, 15)}...</span>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (err) {
+                container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); font-size: 0.75rem;">Samples unavailable.</div>`;
+            }
+        }
+
+        // Select sample item
+        async function selectSampleItem(sample) {
+            document.querySelectorAll('.sample-card').forEach(c => c.classList.remove('active'));
+            const card = document.getElementById(`sample-${sample.folder}`);
+            if (card) card.classList.add('active');
+
+            try {
+                const res = await fetch(sample.url);
+                const blob = await res.blob();
+                const file = new File([blob], sample.filename, { type: "image/jpeg" });
+                processSelectedFile(file);
+                showToast(`Loaded ${sample.emotion} sample from TestDb`);
+            } catch (err) {
+                showToast("Could not load sample image", true);
+            }
+        }
+
+        // Webcam controls
+        async function toggleWebcam() {
+            const video = document.getElementById('webcam-video');
+            const toggleBtn = document.getElementById('btn-camera-toggle');
+            const snapBtn = document.getElementById('btn-camera-snap');
+
+            if (webcamStream) {
+                stopWebcam();
+                toggleBtn.innerText = "Start Camera";
+                snapBtn.disabled = true;
+            } else {
+                try {
+                    webcamStream = await navigator.mediaDevices.getUserMedia({ video: { width: 480, height: 480 } });
+                    video.srcObject = webcamStream;
+                    toggleBtn.innerText = "Stop Camera";
+                    snapBtn.disabled = false;
+                } catch (err) {
+                    showToast("Webcam access denied or unavailable", true);
+                }
+            }
+        }
+
+        function stopWebcam() {
+            if (webcamStream) {
+                webcamStream.getTracks().forEach(track => track.stop());
+                webcamStream = null;
+            }
+            const video = document.getElementById('webcam-video');
+            if (video) video.srcObject = null;
+            const toggleBtn = document.getElementById('btn-camera-toggle');
+            const snapBtn = document.getElementById('btn-camera-snap');
+            if (toggleBtn) toggleBtn.innerText = "Start Camera";
+            if (snapBtn) snapBtn.disabled = true;
+        }
+
+        function captureWebcamFrame() {
+            const video = document.getElementById('webcam-video');
+            const canvas = document.getElementById('webcam-canvas');
+            if (!video || !webcamStream) return;
+
+            canvas.width = video.videoWidth || 320;
+            canvas.height = video.videoHeight || 320;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            canvas.toBlob((blob) => {
+                const file = new File([blob], `webcam_snap_${Date.now()}.jpg`, { type: 'image/jpeg' });
+                processSelectedFile(file);
+                stopWebcam();
+                showToast("Snapshot captured from webcam!");
+            }, 'image/jpeg', 0.95);
+        }
+
+        // Analyze Action Unit & Emotion Pipeline
+        async function analyzeCurrentImage() {
+            if (!selectedFile) return;
+
+            // Switch to loading scanner state
+            idleState.style.display = 'none';
+            resultsState.style.display = 'none';
+            loadingState.style.display = 'flex';
+            scannerImgTarget.src = previewImg.src;
+            studioStatusIndicator.innerText = "Inferring...";
+            analyzeBtn.disabled = true;
+            analyzeBtn.innerHTML = `
+                <div class="status-dot" style="background:#fff; box-shadow:none;"></div>
+                <span>Processing Pipeline...</span>
+            `;
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            try {
+                const startTime = performance.now();
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => null);
+                    throw new Error(errData && errData.error ? errData.error : `Server returned status ${response.status}`);
+                }
+                const data = await response.json();
+                lastAnalysisResult = data;
+
+                // Render result
+                renderAnalysisResults(data, previewImg.src);
+
+                const duration = ((performance.now() - startTime) / 1000).toFixed(2);
+                studioStatusIndicator.innerText = `Completed in ${duration}s`;
+                analyzeBtn.disabled = false;
+                analyzeBtn.innerHTML = `
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                    </svg>
+                    <span>Re-Analyze Image</span>
+                `;
+
+            } catch (err) {
+                console.error("Analysis pipeline error:", err);
+                loadingState.style.display = 'none';
+                idleState.style.display = 'flex';
+                studioStatusIndicator.innerText = "Error";
+                analyzeBtn.disabled = false;
+                analyzeBtn.innerHTML = `
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                    </svg>
+                    <span>Analyze Facial Expression</span>
+                `;
+                showToast(`Inference error: ${err.message || "Failed to process image"}`, true);
+            }
+        }
+
+        // Render Results
+        function renderAnalysisResults(data, originalSrc) {
+            loadingState.style.display = 'none';
+            resultsState.style.display = 'flex';
+
+            const meta = data.emotion_meta || {};
+            const emotionName = data.predicted_emotion || "Neutral / Unknown";
+            const emotionColor = meta.color || "#818cf8";
+
+            // Update Emotion Hero Card
+            document.documentElement.style.setProperty('--emotion-accent-color', emotionColor);
+            document.documentElement.style.setProperty('--emotion-glow-color', meta.color ? `${meta.color}40` : 'rgba(99, 102, 241, 0.3)');
+            
+            const emojiEl = document.getElementById('res-emotion-emoji');
+            if (emojiEl) emojiEl.innerText = meta.emoji || "🎭";
+            
+            const labelEl = document.getElementById('res-emotion-label');
+            if (labelEl) {
+                labelEl.innerText = emotionName;
+                labelEl.style.color = emotionColor;
+            }
+            
+            const focalEl = document.getElementById('res-emotion-focal');
+            if (focalEl) focalEl.innerText = meta.description || `Derived from detected Action Units: ${data.top_au || 'None'}`;
+            
+            const ruleEl = document.getElementById('res-rule-text');
+            if (ruleEl) ruleEl.innerText = meta.rule || "Ekman FACS Canonical Rule";
+
+            // Update Explainability Heatmaps
+            const camSrc = data.grad_cam ? `data:image/jpeg;base64,${data.grad_cam}` : originalSrc;
+
+            // Split slider
+            if (sliderOriginalImg) sliderOriginalImg.src = originalSrc;
+            if (sliderHeatmapImg) sliderHeatmapImg.src = camSrc;
+
+            // Side by Side
+            if (sbsOriginalImg) sbsOriginalImg.src = originalSrc;
+            if (sbsCamImg) sbsCamImg.src = camSrc;
+
+            // Overlay blend
+            if (blendBaseImg) blendBaseImg.src = originalSrc;
+            if (blendCamImg) blendCamImg.src = camSrc;
+
+            // Note text safely rendered
+            const topAu = data.top_au ? `AU ${data.top_au}` : "Primary AU";
+            const topDesc = data.top_au_description || (data.top_au ? `Action Unit ${data.top_au}` : "Primary facial muscle");
+            const noteEl = document.getElementById('cam-explanation-note');
+            if (noteEl) {
+                noteEl.innerHTML = `
+                    <strong>Explainability:</strong> The Grad-CAM heatmap above highlights the facial regions (in red/amber) that the InceptionResnetV1 model prioritized to detect <strong>${topAu}</strong> (${topDesc}), driving the <strong>${emotionName}</strong> classification.
+                `;
+            }
+
+            // Render AU list
+            const auContainer = document.getElementById('au-list-container');
+            if (auContainer) {
+                auContainer.innerHTML = '';
+                const predictions = data.predictions || [];
+                if (predictions.length === 0) {
+                    auContainer.innerHTML = `
+                        <div style="text-align: center; padding: 1.5rem; color: var(--text-muted); font-size: 0.85rem;">
+                            No Action Units surpassed the 35% confidence threshold (Resting baseline face).
+                        </div>
+                    `;
+                } else {
+                    predictions.forEach((p, idx) => {
+                        const isTop = (idx === 0);
+                        const pct = (p.confidence * 100).toFixed(1);
+                        const row = document.createElement('div');
+                        row.className = isTop ? 'au-row-card primary-driver' : 'au-row-card';
+
+                        row.innerHTML = `
+                            <div class="au-row-top">
+                                <div class="au-identity">
+                                    <span class="au-code-badge">AU ${p.au}</span>
+                                    <span class="au-name-desc">${p.description || `Action Unit ${p.au}`}</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    ${isTop ? '<span style="font-size: 0.68rem; font-weight:700; color:#cbd5e1; background:rgba(255,255,255,0.1); padding:2px 7px; border-radius:4px;">PRIMARY DRIVER</span>' : ''}
+                                    <span class="au-confidence-num">${pct}%</span>
+                                </div>
+                            </div>
+                            <div class="au-progress-track">
+                                <div class="au-progress-fill" style="width: ${pct}%;"></div>
+                            </div>
+                        `;
+                        auContainer.appendChild(row);
+                    });
+                }
+            }
+
+            // Reset slider position to 50%
+            setSliderPosition(50);
+        }
+
+        // Setup Split Comparison Slider
+        function setupSplitSlider() {
+            const container = sliderContainer;
+            if (!container) return;
+
+            const onMove = (e) => {
+                if (!isDraggingSlider) return;
+                const rect = container.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                let offset = ((clientX - rect.left) / rect.width) * 100;
+                offset = Math.max(0, Math.min(100, offset));
+                setSliderPosition(offset);
+            };
+
+            const onStart = (e) => {
+                isDraggingSlider = true;
+                onMove(e);
+            };
+
+            const onEnd = () => {
+                isDraggingSlider = false;
+            };
+
+            container.addEventListener('mousedown', onStart);
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener('mouseup', onEnd);
+
+            container.addEventListener('touchstart', onStart, { passive: true });
+            window.addEventListener('touchmove', onMove, { passive: true });
+            window.addEventListener('touchend', onEnd);
+        }
+
+        function setSliderPosition(percentage) {
+            if (sliderOverlayWrap) sliderOverlayWrap.style.width = `${percentage}%`;
+            if (sliderHandle) sliderHandle.style.left = `${percentage}%`;
+            if (sliderContainer && sliderOriginalImg) {
+                sliderOriginalImg.style.width = `${sliderContainer.offsetWidth}px`;
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            if (sliderContainer) {
+                sliderOriginalImg.style.width = `${sliderContainer.offsetWidth}px`;
+            }
+        });
+
+        // Switch Cam Display Mode (Slider, Side-by-Side, Overlay Blend)
+        function switchCamMode(mode) {
+            activeCamMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`mode-btn-${mode}`).classList.add('active');
+
+            sliderContainer.style.display = 'none';
+            sbsGridBox.style.display = 'none';
+            overlayBlendBox.style.display = 'none';
+
+            if (mode === 'slider') {
+                sliderContainer.style.display = 'block';
+                sliderOriginalImg.style.width = `${sliderContainer.offsetWidth}px`;
+                setSliderPosition(50);
+            } else if (mode === 'sbs') {
+                sbsGridBox.style.display = 'grid';
+            } else if (mode === 'blend') {
+                overlayBlendBox.style.display = 'flex';
+            }
+        }
+
+        // Adjust Blend Opacity
+        function adjustBlendOpacity(val) {
+            blendCamImg.style.opacity = val / 100;
+            document.getElementById('blend-opacity-val').innerText = `${val}%`;
+        }
+
+        // Toggle FACS Guide
+        function toggleFacsGuide() {
+            const content = document.getElementById('facs-guide-content');
+            const chevron = document.getElementById('facs-chevron');
+            if (content.style.display === 'block') {
+                content.style.display = 'none';
+                chevron.style.transform = 'rotate(0deg)';
+            } else {
+                content.style.display = 'block';
+                chevron.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        // Generate Benchmark Report
+        async function generateReport() {
+            const btnLeft = document.getElementById('btn-batch-report');
+            const btnTop = document.getElementById('top-benchmark-btn');
+            
+            const originalLeftText = btnLeft.innerHTML;
+            btnLeft.innerHTML = `
+                <div class="status-dot" style="background:#fff; box-shadow:none;"></div>
+                <span>Evaluating 35 Images (Please wait)...</span>
+            `;
+            btnLeft.disabled = true;
+            if (btnTop) btnTop.disabled = true;
+
+            showToast("Generating comprehensive 35-sample TestDb benchmark report...");
+
+            try {
+                const response = await fetch('/generate-report', { method: 'POST' });
+                
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    const data = await response.json();
+                    showToast(`Error: ${data.error || 'Failed to generate benchmark'}`, true);
+                    return;
+                }
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `TestDb_FACS_Benchmark_Report_${Date.now()}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    showToast("Benchmark PDF downloaded successfully!");
+                } else {
+                    showToast("Server error generating benchmark report", true);
+                }
+            } catch (e) {
+                showToast("Connection error while requesting benchmark", true);
+            } finally {
+                btnLeft.innerHTML = originalLeftText;
+                btnLeft.disabled = false;
+                if (btnTop) btnTop.disabled = false;
+            }
+        }
+
+        // Download Grad-CAM Heatmap Image
+        function downloadGradCam() {
+            if (!lastAnalysisResult || !lastAnalysisResult.grad_cam) {
+                showToast("No Grad-CAM heatmap generated yet", true);
+                return;
+            }
+            const a = document.createElement('a');
+            a.href = "data:image/jpeg;base64," + lastAnalysisResult.grad_cam;
+            a.download = `grad_cam_${lastAnalysisResult.predicted_emotion || 'emotion'}_${Date.now()}.jpg`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            showToast("Grad-CAM image downloaded!");
+        }
+
+        // Copy Analysis Result as JSON
+        function copyAnalysisJson() {
+            if (!lastAnalysisResult) {
+                showToast("No analysis result to copy", true);
+                return;
+            }
+            const cleanCopy = {
+                predicted_emotion: lastAnalysisResult.predicted_emotion,
+                emotion_meta: lastAnalysisResult.emotion_meta,
+                top_au: lastAnalysisResult.top_au,
+                top_au_description: lastAnalysisResult.top_au_description,
+                predictions: lastAnalysisResult.predictions
+            };
+            navigator.clipboard.writeText(JSON.stringify(cleanCopy, null, 2))
+                .then(() => showToast("Analysis JSON copied to clipboard!"))
+                .catch(() => showToast("Failed to copy to clipboard", true));
+        }
+
+        // Utility: Show Toast Notification
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('app-toast');
+            const toastMsg = document.getElementById('toast-message');
+            toastMsg.innerText = message;
+            
+            if (isError) {
+                toast.style.borderColor = 'rgba(239, 68, 68, 0.6)';
+                toast.querySelector('svg').setAttribute('stroke', '#ef4444');
+            } else {
+                toast.style.borderColor = 'var(--border-glass-active)';
+                toast.querySelector('svg').setAttribute('stroke', '#10b981');
+            }
+
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3500);
+        }
+
+        // Utility: Format File Size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>
