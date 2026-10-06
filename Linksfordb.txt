@@ -1,0 +1,56 @@
+
+ARVINDH KUMAR VETRIVEL (RA2512033010015)
+Sep 27, 2026, 10:08 AM (6 days ago)
+to me
+
+
+
+---------- Forwarded message ---------
+From: Gayathri M <gayathrm@srmist.edu.in>
+Date: Tue, Sep 15, 2026 at 11:10 AM
+Subject: Fwd: Request for Access to RAF-DB Dataset for Academic Research
+To: ARVINDH KUMAR VETRIVEL (RA2512033010015) <av0872@srmist.edu.in>
+
+
+
+
+Thanks and Regards,
+Dr. V.M.Gayathri
+Associate Professor
+Department of Networking and Communications
+SRMIST
+Kattankulathur
+
+---------- Forwarded message ---------
+From: 邓伟洪 <whdeng@bupt.edu.cn>
+Date: Tue, Sep 15, 2026, 7:45 AM
+Subject: Re:Request for Access to RAF-DB Dataset for Academic Research
+To: Gayathri M <gayathrm@srmist.edu.in>
+
+
+Thanks for your interest in the RAF Face Database Series.
+You can download the data from -
+1. Google Drive:
+Basic emotion:
+https://drive.google.com/drive/folders/0B4E10azXECctRUgwVmFPblFUdUE?resourcekey=0-SCrrCMK2lc4IDmhDsDKhRw&usp=sharing
+Compound emotion:
+https://drive.google.com/drive/folders/0B4E10azXECctWnl4NG11bmhiOTQ?resourcekey=0-SBKd66q-dDlNrQuEjQV_lg&usp=sharing
+2. Baidu Drive:
+Basic emotion:
+http://pan.baidu.com/s/1eS01m5k Code: 8nn9
+Compound emotion:
+https://pan.baidu.com/s/1YLqUbqFKjeQw-qiLmqguDw Code: d0ie
+
+
+RAF-ML：
+1. Google Drive:
+https://drive.google.com/drive/folders/11KR3Zwpvlwdj3y7slDoMxqQPzd4529nl?usp=sharing
+2. Baidu Drive:
+https://pan.baidu.com/s/1GjGKdZVRVRqKuv536HkCwg Code: hnzi
+
+
+RAF-AU：
+1. Google Drive:
+https://drive.google.com/drive/folders/1W7MMBgbpPEs_eU6QsVnw9B1stIyFBrPI?usp=sharing
+ 2. Baidu Drive:
+https://pan.baidu.com/s/1XrGG8ijvV_1RrtS6FcbQ5Q  Code: f9oc

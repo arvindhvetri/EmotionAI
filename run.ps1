@@ -5,4 +5,10 @@ Write-Host "URL: http://127.0.0.1:8001" -ForegroundColor Green
 Write-Host "Press Ctrl+C to stop the server." -ForegroundColor Yellow
 Write-Host "========================================================" -ForegroundColor Cyan
 
-& ".\.venv\Scripts\uvicorn.exe" app:app --reload --port 8001
+if (Test-Path ".\venv\Scripts\uvicorn.exe") {
+    & ".\venv\Scripts\uvicorn.exe" app:app --reload --port 8001
+} elseif (Test-Path ".\.venv\Scripts\uvicorn.exe") {
+    & ".\.venv\Scripts\uvicorn.exe" app:app --reload --port 8001
+} else {
+    uvicorn app:app --reload --port 8001
+}
