@@ -1,0 +1,28 @@
+{
+  "models": [
+    "models/emotion_r50_s7_cw03.pth",
+    "models/emotion_r50_s2024_cw03.pth"
+  ],
+  "class_bias": [
+    0.0,
+    0.0,
+    0.0,
+    0.4,
+    -0.4,
+    0.0,
+    -0.1
+  ],
+  "classes": [
+    "Surprise",
+    "Fear",
+    "Disgust",
+    "Happiness",
+    "Sadness",
+    "Anger",
+    "Neutral"
+  ],
+  "img_size": 224,
+  "val_macro_f1": 0.8426,
+  "test_accuracy": 0.9038,
+  "test_macro_f1": 0.8565
+}

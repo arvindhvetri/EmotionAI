@@ -1271,6 +1271,51 @@
             color: #38bdf8;
         }
 
+        /* Fairness & Reliability card */
+        .fair-card {
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .fair-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .fair-head h4 { margin: 0; font-size: 0.9rem; color: var(--text-primary); }
+        .fair-badge { font-size: 0.7rem; font-weight: 700; padding: 3px 9px; border-radius: 999px; letter-spacing: 0.03em; }
+        .fair-badge.High { color: #10b981; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); }
+        .fair-badge.Medium { color: #f59e0b; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); }
+        .fair-badge.Low { color: #f43f5e; background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.4); }
+        .fair-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+        .fair-stat { background: rgba(255, 255, 255, 0.04); border-radius: var(--radius-sm); padding: 8px 10px; }
+        .fair-stat .k { font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+        .fair-stat .v { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin-top: 2px; }
+        .fair-note { font-size: 0.78rem; color: #cbd5e1; line-height: 1.5; }
+        .fair-audit { font-size: 0.74rem; color: var(--text-secondary); line-height: 1.5; border-top: 1px solid var(--border-glass); padding-top: 8px; }
+        .fair-bars { display: flex; flex-direction: column; gap: 4px; }
+        .fair-bar-row { display: grid; grid-template-columns: 76px 1fr 44px; align-items: center; gap: 8px; font-size: 0.72rem; color: var(--text-secondary); }
+        .fair-bar-track { height: 6px; background: rgba(255, 255, 255, 0.07); border-radius: 3px; overflow: hidden; }
+        .fair-bar-fill { height: 100%; background: #818cf8; border-radius: 3px; }
+        .fair-bar-row.current { color: var(--text-primary); font-weight: 700; }
+        .fair-vs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .fair-vs-tile { border-radius: var(--radius-sm); padding: 10px 12px; border: 1px solid var(--border-glass); background: rgba(255, 255, 255, 0.03); }
+        .fair-vs-tile.with { border-color: rgba(99, 102, 241, 0.55); background: rgba(99, 102, 241, 0.10); }
+        .fair-vs-tile .t { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-secondary); }
+        .fair-vs-tile .e { font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin-top: 3px; }
+        .fair-vs-tile .s { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+        .fair-vs-verdict { grid-column: 1 / -1; font-size: 0.75rem; text-align: center; padding: 5px; border-radius: var(--radius-sm); }
+        .fair-vs-verdict.same { color: #10b981; background: rgba(16, 185, 129, 0.10); }
+        .fair-vs-verdict.differs { color: #f59e0b; background: rgba(245, 158, 11, 0.10); }
+        .fair-table { width: 100%; border-collapse: collapse; font-size: 0.74rem; color: var(--text-secondary); }
+        .fair-table th, .fair-table td { padding: 5px 8px; border-bottom: 1px solid var(--border-glass); text-align: right; }
+        .fair-table th:first-child, .fair-table td:first-child { text-align: left; }
+        .fair-table th { color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.66rem; letter-spacing: 0.04em; }
+        .fair-table td.up { color: #10b981; } .fair-table td.down { color: #f43f5e; }
+        .fair-section-title { font-size: 0.72rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+        @media (max-width: 520px) { .fair-vs { grid-template-columns: 1fr; } }
+        .fair-bar-row.current .fair-bar-fill { background: var(--emotion-accent-color, #818cf8); }
+
         /* 3. Action Units Section */
         .au-section {
             display: flex;
@@ -1679,7 +1724,7 @@
                         <div class="facs-guide-item"><strong>Sadness:</strong> AU1+4 (Medial Brow Knot) + AU15/17 (Commissure Depressors)</div>
                         <div class="facs-guide-item"><strong>Disgust:</strong> AU9 (Nose Wrinkler) + AU10 (Upper Lip Raiser)</div>
                         <div class="facs-guide-item"><strong>Anger:</strong> AU4 (Brow Lowerer) + AU23/24 (Lip Tightener/Pressor)</div>
-                        <div class="facs-guide-item"><strong>Contempt:</strong> L12/R12 (Unilateral Smirk) or AU14 (Dimpler)</div>
+                        <div class="facs-guide-item"><strong>Neutral:</strong> No strong muscle movement (resting face)</div>
                     </div>
                 </div>
 
@@ -1822,7 +1867,7 @@
                                 <div class="sbs-box">
                                     <div class="sbs-label">
                                         <span>GRAD-CAM HEATMAP</span>
-                                        <span style="color: #a855f7;">Block8 Attention</span>
+                                        <span style="color: #a855f7;" id="sbs-cam-method">Occlusion</span>
                                     </div>
                                     <img src="" alt="Grad-CAM" class="sbs-img" id="sbs-cam-img">
                                 </div>
@@ -1867,6 +1912,9 @@
                             <!-- Populated dynamically via JS -->
                         </div>
                     </div>
+
+                    <!-- Fairness & Reliability (filled from data.fairness) -->
+                    <div class="fair-card" id="fairness-card" style="display: none;"></div>
 
                     <!-- 4. Result Actions Bar -->
                     <div class="results-actions-bar">
@@ -2276,11 +2324,18 @@
             const focalEl = document.getElementById('res-emotion-focal');
             if (focalEl) focalEl.innerText = meta.description || `Derived from detected Action Units: ${data.top_au || 'None'}`;
             
+            const tagEl = document.getElementById('res-emotion-tag');
+            if (tagEl) tagEl.innerText = 'Predicted emotion \u00b7 WITH fairness (deployed model)'
+                + (data.emotion_confidence != null ? ` \u00b7 ${(data.emotion_confidence * 100).toFixed(1)}%` : '');
+
             const ruleEl = document.getElementById('res-rule-text');
             if (ruleEl) ruleEl.innerText = meta.rule || "Ekman FACS Canonical Rule";
 
-            // Update Explainability Heatmaps
-            const camSrc = data.grad_cam ? `data:image/jpeg;base64,${data.grad_cam}` : originalSrc;
+            // Update Explainability Heatmaps (emotion heatmap by default, AU heatmap on the toggle)
+            lastOriginalSrc = originalSrc;
+            camSource = 'au';   // AU heatmap only
+            applyCamSource(data);
+            const camSrc = currentCamSrc(data, originalSrc);
 
             // Split slider
             if (sliderOriginalImg) sliderOriginalImg.src = originalSrc;
@@ -2297,12 +2352,6 @@
             // Note text safely rendered
             const topAu = data.top_au ? `AU ${data.top_au}` : "Primary AU";
             const topDesc = data.top_au_description || (data.top_au ? `Action Unit ${data.top_au}` : "Primary facial muscle");
-            const noteEl = document.getElementById('cam-explanation-note');
-            if (noteEl) {
-                noteEl.innerHTML = `
-                    <strong>Explainability:</strong> The Grad-CAM heatmap above highlights the facial regions (in red/amber) that the InceptionResnetV1 model prioritized to detect <strong>${topAu}</strong> (${topDesc}), driving the <strong>${emotionName}</strong> classification.
-                `;
-            }
 
             // Render AU list
             const auContainer = document.getElementById('au-list-container');
@@ -2342,8 +2391,142 @@
                 }
             }
 
+            renderFairness(data);
+
             // Reset slider position to 50%
             setSliderPosition(50);
+        }
+
+        // Fairness & Reliability card: how much to trust this prediction, and how fair the model is across classes
+        // ---- Heatmap source: emotion decision (ResNet-50 ensemble) or top Action Unit (InceptionResnetV1) ----
+        let camSource = 'au';
+        let lastOriginalSrc = '';
+        function currentCamSrc(data, originalSrc) {
+            const b64 = camSource === 'emotion' ? data.emotion_grad_cam : data.grad_cam;
+            return b64 ? `data:image/jpeg;base64,${b64}` : originalSrc;
+        }
+        function setCamSource(src) {
+            if (!lastAnalysisResult) return;
+            camSource = src;
+            applyCamSource(lastAnalysisResult);
+        }
+        function applyCamSource(data) {
+            const camSrc = currentCamSrc(data, lastOriginalSrc);
+            if (sliderHeatmapImg) sliderHeatmapImg.src = camSrc;
+            if (sbsCamImg) sbsCamImg.src = camSrc;
+            if (blendCamImg) blendCamImg.src = camSrc;
+            const isEmo = camSource === 'emotion';
+            const methodEl = document.getElementById('sbs-cam-method');
+            if (methodEl) methodEl.innerText = isEmo ? 'Occlusion' : 'LayerCAM';
+            const sub = document.getElementById('studio-subtext');
+            if (sub) sub.innerText = isEmo
+                ? 'Occlusion sensitivity: each 40\u00d740 px patch is hidden in turn and the drop in the ensemble\u2019s confidence is measured'
+                : 'LayerCAM on InceptionResnetV1 repeat_2 + mixed_7a + block8 (top Action Unit)';
+            const topAu = data.top_au ? `AU ${data.top_au}` : 'the primary AU';
+            const topDesc = data.top_au_description || '';
+            const emotionName = data.predicted_emotion || 'the predicted emotion';
+            const noteEl = document.getElementById('cam-explanation-note');
+            if (noteEl) noteEl.innerHTML = isEmo
+                ? (() => {
+                    const h = data.emotion_heatmap;
+                    const drop = h ? ` Hiding the most important region lowers the confidence in <strong>${emotionName}</strong> by about <strong>${(h.max_confidence_drop * 100).toFixed(0)} points</strong>${h.max_confidence_drop < 0.05 ? ' &mdash; a small drop, so no single region decides this prediction (the evidence is spread over the face)' : ''}.` : '';
+                    return `<strong>Explainability:</strong> Red/amber regions are the parts of the face the ensemble actually relies on for <strong>${emotionName}</strong>: when they are hidden, its confidence falls.${drop} Switch to <em>Top Action Unit</em> to see where the muscle movement <strong>${topAu}</strong> was detected.`;
+                })()
+                : `<strong>Explainability:</strong> Red/amber regions show where the AU model detected <strong>${topAu}</strong>${topDesc ? ` (${topDesc})` : ''}. This explains the muscle evidence behind <strong>${emotionName}</strong>; the emotion itself is decided by the ResNet-50 ensemble.`;
+        }
+
+        function renderFairness(data) {
+            const card = document.getElementById('fairness-card');
+            if (!card) return;
+            const f = data.fairness;
+            if (!f) { card.style.display = 'none'; return; }
+            card.style.display = 'flex';
+            if (!f.available) {
+                card.innerHTML = `<div class="fair-head"><h4>Fairness &amp; Reliability</h4></div><div class="fair-note">${f.note || ''}</div>`;
+                return;
+            }
+            const pct = (v) => (v === null || v === undefined) ? '-' : `${(v * 100).toFixed(1)}%`;
+            const stats = [
+                ['Confidence', pct(f.confidence)],
+                ['Top-2 margin', `${(f.margin * 100).toFixed(0)} pts`],
+                ['Uncertainty', pct(f.uncertainty)],
+                ['Class recall (test)', pct(f.class_test_recall)],
+                ['Class precision (test)', pct(f.class_test_precision)],
+                ['Training share', `${pct(f.train_share)}${f.minority_class ? ' (minority)' : ''}`],
+                ['FACS cross-check', f.facs_rule_emotion ? `${f.facs_agreement ? 'Agrees' : 'Differs'} (${f.facs_rule_emotion})` : '-'],
+            ];
+            let audit = '';
+            const a = f.model_audit;
+            if (a) {
+                audit = `<div class="fair-audit"><strong>Model fairness audit</strong> (RAF-DB test, ${a.n_test} images):
+                    accuracy ${pct(a.accuracy)}, balanced accuracy ${pct(a.balanced_accuracy)}.
+                    Worst class ${a.worst_recall_class} ${pct(a.worst_recall)} vs best ${a.best_recall_class} ${pct(a.best_recall)}
+                    &mdash; recall ratio ${a.recall_ratio.toFixed(2)} (${a.passes_four_fifths ? 'passes' : 'below'} the 0.80 four-fifths rule).
+                    ${a.minority_classes ? `Minority classes (${a.minority_classes.join(', ')}) mean recall ${pct(a.minority_mean_recall)} vs ${pct(a.majority_mean_recall)}.` : ''}
+                    </div>`;
+            } else {
+                audit = `<div class="fair-audit">Run <code>fairness.py</code> to add the test-set fairness audit (per-class recall, four-fifths rule).</div>`;
+            }
+            // ---- WITH vs WITHOUT fairness: this image ----
+            const wf = f.without_fairness;
+            const vs = `
+                <div class="fair-section-title">With vs without fairness &middot; this image</div>
+                <div class="fair-vs">
+                    <div class="fair-vs-tile with">
+                        <div class="t">With fairness &middot; deployed</div>
+                        <div class="e">${data.predicted_emotion}</div>
+                        <div class="s">${pct(f.confidence)} &middot; class weights, macro-F1 selection, ensemble + calibration</div>
+                    </div>
+                    <div class="fair-vs-tile">
+                        <div class="t">Without fairness &middot; baseline</div>
+                        <div class="e">${wf ? wf.emotion : '&mdash;'}</div>
+                        <div class="s">${wf ? `${pct(wf.confidence)} &middot; no class weights, accuracy selection, single model`
+                                            : 'Not trained yet &mdash; run train_nofair.bat, then restart the app'}</div>
+                    </div>
+                    ${wf ? `<div class="fair-vs-verdict ${wf.same_as_with_fairness ? 'same' : 'differs'}">${wf.same_as_with_fairness
+                        ? 'Both models agree on this image'
+                        : `The models disagree: fairness changed the prediction from ${wf.emotion} to ${data.predicted_emotion}`}</div>` : ''}
+                </div>`;
+
+            // ---- WITH vs WITHOUT fairness: full test set ----
+            let vsTable = '';
+            const w = a && a.with_vs_without;
+            if (w) {
+                const rowsDef = [['accuracy', 'Accuracy', 1], ['balanced_accuracy', 'Balanced accuracy', 1], ['macro_f1', 'Macro-F1', 1],
+                                 ['worst_recall', 'Worst-class recall', 1], ['minority_mean_recall', 'Minority-class recall', 1],
+                                 ['recall_gap', 'Recall gap (lower is fairer)', -1], ['recall_ratio', 'Recall ratio (&ge; 0.80 passes)', 1]];
+                const fmt = (k, v) => k === 'recall_ratio' ? v.toFixed(3) : k === 'recall_gap' ? `${(v * 100).toFixed(1)} pts` : pct(v);
+                vsTable = `<div class="fair-section-title">With vs without fairness &middot; full test set (${a.n_test} images)</div>
+                    <table class="fair-table"><thead><tr><th>Metric</th><th>Without</th><th>With</th><th>Change</th></tr></thead><tbody>` +
+                    rowsDef.filter(([k]) => w[k]).map(([k, l, dir]) => {
+                        const c = w[k].change, good = c * dir > 0.0005, bad = c * dir < -0.0005;
+                        const ch = k === 'recall_ratio' ? (c >= 0 ? '+' : '') + c.toFixed(3) : `${c >= 0 ? '+' : ''}${(c * 100).toFixed(1)} pts`;
+                        return `<tr><td>${l}</td><td>${fmt(k, w[k].without)}</td><td>${fmt(k, w[k].with)}</td><td class="${good ? 'up' : bad ? 'down' : ''}">${ch}</td></tr>`;
+                    }).join('') + '</tbody></table>';
+            } else if (a) {
+                vsTable = `<div class="fair-audit">Test-set comparison appears after <code>train_nofair.bat</code> (it re-runs <code>fairness.py</code>).</div>`;
+            }
+
+            let bars = '';
+            if (data.emotion_probabilities) {
+                bars = '<div class="fair-bars">' + Object.entries(data.emotion_probabilities)
+                    .sort((x, y) => y[1] - x[1])
+                    .map(([k, v]) => `<div class="fair-bar-row ${k === data.predicted_emotion ? 'current' : ''}"><span>${k}</span>
+                        <div class="fair-bar-track"><div class="fair-bar-fill" style="width:${(v * 100).toFixed(1)}%"></div></div>
+                        <span>${(v * 100).toFixed(1)}%</span></div>`).join('') + '</div>';
+            }
+            card.innerHTML = `
+                <div class="fair-head">
+                    <h4>Fairness &amp; Reliability</h4>
+                    <span class="fair-badge ${f.reliability}">${f.reliability} reliability${f.needs_review ? ' &middot; review' : ''}</span>
+                </div>
+                ${vs}
+                <div class="fair-section-title">Reliability of the with-fairness prediction</div>
+                <div class="fair-grid">${stats.map(([k, v]) => `<div class="fair-stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('')}</div>
+                ${bars}
+                <div class="fair-note">${f.note || ''}</div>
+                ${vsTable}
+                ${audit}`;
         }
 
         // Setup Split Comparison Slider
@@ -2395,7 +2578,7 @@
         // Switch Cam Display Mode (Slider, Side-by-Side, Overlay Blend)
         function switchCamMode(mode) {
             activeCamMode = mode;
-            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('[id^="mode-btn-"]').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`mode-btn-${mode}`).classList.add('active');
 
             sliderContainer.style.display = 'none';
@@ -2481,13 +2664,14 @@
 
         // Download Grad-CAM Heatmap Image
         function downloadGradCam() {
-            if (!lastAnalysisResult || !lastAnalysisResult.grad_cam) {
+            const camB64 = lastAnalysisResult && (camSource === 'emotion' ? lastAnalysisResult.emotion_grad_cam : lastAnalysisResult.grad_cam);
+            if (!camB64) {
                 showToast("No Grad-CAM heatmap generated yet", true);
                 return;
             }
             const a = document.createElement('a');
-            a.href = "data:image/jpeg;base64," + lastAnalysisResult.grad_cam;
-            a.download = `grad_cam_${lastAnalysisResult.predicted_emotion || 'emotion'}_${Date.now()}.jpg`;
+            a.href = "data:image/jpeg;base64," + camB64;
+            a.download = `heatmap_${camSource}_${lastAnalysisResult.predicted_emotion || 'emotion'}_${Date.now()}.jpg`;
             document.body.appendChild(a);
             a.click();
             a.remove();

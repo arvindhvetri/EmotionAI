@@ -1,10 +1,20 @@
-fastapi
-uvicorn
-python-multipart
-torch
-torchvision
-Pillow
-numpy
-fpdf2
-grad-cam
-facenet-pytorch
+# --- web app ---
+fastapi==0.142.2
+uvicorn==0.54.0
+python-multipart==0.0.32
+fpdf2==2.8.9
+grad-cam==1.5.7
+# --- deep learning (install the CUDA build first, see README) ---
+torch==2.6.0
+torchvision==0.21.0
+# --- data / evaluation ---
+numpy==2.5.2
+pillow==12.3.0
+scikit-learn==1.9.1
+pandas==3.0.6
+matplotlib==3.11.2
+seaborn==0.13.2
+requests
+tqdm
+# facenet-pytorch pins old torch/numpy versions, so install it without its dependencies:
+#   pip install facenet-pytorch==2.6.0 --no-deps

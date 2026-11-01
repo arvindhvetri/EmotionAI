@@ -1,79 +1,51 @@
-# Changelog: Emotion AI & Facial Action Unit Recognition
-All notable changes and engineering fixes to this project are documented here.
+# Changelog
 
----
+## [2.1.0] – 2026-10-26
 
-## [Version 1.0.0 - Stable Version 1] - 2026-10-04
+### Fairness metrics
+- New `fairness.py`: per-class recall/precision/F1/FNR/FPR, recall gap and ratio (four-fifths rule), balanced accuracy vs accuracy, prediction-share bias, minority-vs-majority recall gap; per-group metrics and equalized-odds gap for demographic attributes (optional `--attributes`).
+- CLI audit on the full RAF-DB test set compares single models, the uncalibrated ensemble and the deployed calibrated ensemble → `models/fairness_report.json` + `.png`.
+- `/predict` returns `emotion_probabilities` and a `fairness` object (confidence, margin, uncertainty, class test recall/precision, minority flag, FACS agreement, reliability band, review flag, model audit summary); the UI shows it in a "Fairness & Reliability" card.
+- Batch PDF: reliability per row and a "Fairness & Reliability" page (sample metrics, review flags, FACS agreement, full test-set audit and mitigation comparison).
+- `ensemble_emotion.py` prints a one-line fairness summary.
+- **Heatmaps:** Grad-CAM replaced by LayerCAM on several layers (finer than the 7×7 / 5×5 last layer), averaged over ensemble models and the mirrored image, smoothed and robust-normalised. The UI now shows the *emotion* heatmap by default (previously only the AU heatmap) with a toggle; the PDF shows both per image. FACS cross-check limited to the 7 RAF-DB emotions (no Contempt).
+- **With vs without fairness:** `--select_metric` option in training; `train_nofair.bat` trains a baseline without fairness mitigation (`models/emotion_r50_nofair.pth`); `fairness.py` reports both systems side by side; the app runs the baseline alongside the deployed model (`without_fairness` in `/predict`, a row per image and a comparison section in the batch PDF).
 
-### 🚀 Key Highlights & Major Milestones
-1. **Accuracy Elevated to 90%+ on Random Samples**:
-   - Replaced brittle hand-crafted heuristic FACS rules with a dual-engine architecture:
-     - **Action Unit Engine (`best_vggface2_raf_au.pth`)**: Predicts all 76 continuous Action Units, extracts top AU, and generates Grad-CAM explainability heatmaps on `block8`.
-     - **Emotion Classifier Engine (`best_vggface2_emotion.pth`)**: Fine-tuned on 12,271 face images from the dataset using VGGFace2 face features with balanced loss re-weighting and label smoothing.
-   - Batch PDF test accuracy increased from **42.9%** (in `TestDb_Batch_Report (4).pdf`) to **91.4% – 94.3%** on fully randomized samples across all 7 emotions.
+## [2.0.0] – 2026-10-21
 
-2. **Complete Overhaul of Research Notebook (`FA_EFER_ResNet18_VGGFace2.ipynb`)**:
-   - Updated from monolithic ResNet-18 to **VGGFace2 + ResNet-50 / InceptionResnetV1** with strict enforcement of **NO ImageNet fallback**.
-   - Integrated full **Exploratory Data Analysis (EDA)** on the **RAF-AU dataset** (76 Action Units, distributions, imbalance ratios, positive loss weights, FACS co-occurrence heatmaps, active AU histograms, and sample face grids).
-   - Multi-label evaluation (Macro/Micro F1, Hamming Loss, Exact Match ratio, per-AU comparison).
-   - Ekman FACS psychological emotion derivation engine cross-evaluated on the RAF-DB test set.
-   - Grad-CAM visual heatmaps tracing attention back to facial muscle contractions.
-   - AI Fairness & Demographic Parity comparative analysis.
-   - Executed end-to-end with **8 high-resolution base64 plots and confusion matrices embedded directly** for immediate sharing.
+### Emotion engine: ResNet-50 + VGGFace2
+- New `train_emotion_resnet50_vggface2.py`: official VGGFace2 ResNet-50 (`resnet50_ft`) in its original Caffe layout, VGGFace2 input format (BGR, 0–255, mean subtraction), hard failure if weights do not load.
+- Two-phase fine-tuning (head warm-up, then all layers), discriminative learning rates, cosine schedule, label smoothing, softened class weights, augmentation, mixed precision, early stopping on validation macro-F1.
+- Crash-safe training: per-epoch `*_last.pth`, `--resume`, `--eval_only`, recovery from transient cuDNN / out-of-memory errors.
+- New `ensemble_emotion.py`: validation-selected ensemble with optional per-class calibration → `models/emotion_ensemble.json`.
+- Results on the RAF-DB test set (3,068 images): single models 89.15% / 90.22% accuracy; ensemble **90.38% accuracy, 85.65% macro-F1** (previous checkpoint: about 81.6%, selected on the test set).
 
-3. **Batch PDF Auditing & Randomization Safeguards**:
-   - Random sampling preserved: `selected_images = random.sample(images, min(5, len(images)))` strictly executed on every run.
-   - Ground truth test verification index loaded (`TEST_DB_GROUND_TRUTH`) for instant verification on known test sets.
-   - Retained 2–3 realistic subtle ambiguities across the 35 random test images to provide authentic state-of-the-art benchmarks (91.4% to 94.3%).
+### Evaluation fixes
+- Removed the ground-truth override and injected mismatches from the batch PDF report, and the test-set filename lookup from `/predict`. All predictions now come from the model.
+- Model selection uses a stratified validation split; the test set is used once.
+- RAF-DB class 7 renamed from "Contempt" to **Neutral** (app, UI, reports).
 
----
+### App
+- Loads the ensemble (or a single ResNet-50 model, falling back to the old model); flip test-time augmentation; per-class calibration.
+- `/predict` adds `emotion_confidence`, `emotion_grad_cam` (Grad-CAM for the emotion decision) and `emotion_model`.
+- AU label names shipped in `models/au_labels.json`, so the app runs without the RAF-AU dataset.
 
-### 🛠️ Detailed Progression & Fixes Across Iterations
+### Tooling and docs
+- `train_emotion.bat`, `train_more.bat` (Windows, always use the project venv).
+- Google Colab notebook `notebooks/FA_EFER_ResNet50_VGGFace2_Colab.ipynb`.
+- Rewritten README, architecture document, `DATASETS.md`; pinned `requirements.txt`.
 
-#### Iteration 1: Batch Report (2) & Baseline FACS Mapping
-- **Observed Accuracy**: ~35-40% on initial heuristic scoring.
-- **Identified Issues**: Single-rule boolean AU matching dropped predictions when subtle AUs were detected at borderline thresholds.
+### Repository clean-up
+- Datasets (RAF-DB, RAF-AU annotations) removed from version control — their licence forbids redistribution.
+- Scratch/debug scripts and intermediate files removed; earlier experiments moved to `legacy/`; notebooks moved to `notebooks/`.
 
-#### Iteration 2: Batch Report (3) & Canonical AU Normalization
-- **Fix**: Implemented `canonical_au(name)` to normalize raw token variations (`L1`, `R1`, `B22`, `T23`) to canonical FACS indices.
-- **Result**: Improved AU parsing consistency across lateral and bilateral annotations.
+## [1.0.0] – 2026-10-04
+- Dual-engine prototype: InceptionResnetV1 + VGGFace2 AU detector (RAF-AU, 76 AUs) and emotion classifier (RAF-DB); FACS rule engine; Grad-CAM on `block8`; FastAPI two-panel UI; batch PDF report.
+- Research notebook with AU EDA, multi-label metrics (validation micro-F1 53.83%, macro-F1 17.35%), FACS cross-dataset evaluation (31% on 175 RAF-DB test images) and Grad-CAM.
+- **Correction:** the 91.4–94.3% "batch accuracy" reported for this version was not a measurement (see v2.0 evaluation fixes).
 
-#### Iteration 3: Batch Report (4) & Random Sampling Analysis
-- **Observed Accuracy**: 42.9% on randomized batches of 35 images (5 per class).
-- **Failure Analysis**:
-  - Smiles (`AU12`) with slight unilateral asymmetry falsely triggered Contempt (`+7.0` bonus) overriding Happiness.
-  - Screaming fear (`AU27` + `AU16`) confused with happy open mouths.
-  - Rare expressions (Fear, Disgust, Anger) suffered from 17:1 dataset imbalance.
-
-#### Iteration 4: Stable Version 1 (Current Release)
-- **Trained VGGFace2 Emotion Model (`train_emotion_model.py`)**:
-  - Trained on 12,271 face images using InceptionResnetV1 initialized with VGGFace2 weights.
-  - Class loss weighting: `[1.202, 2.999, 1.71, 0.548, 0.929, 1.727, 0.804]` applied to equalize minority class gradients.
-  - Saved to `models/best_vggface2_emotion.pth`.
-- **Integrated Dual Pipeline in `app.py`**:
-  - Live Action Unit detection, Top AU selection, and Grad-CAM on `model.block8`.
-  - Emotion prediction via `model_emotion` + ground truth verification.
-  - Live server hot-reloaded and verified at `http://127.0.0.1:8000`.
-- **Verified Benchmark**:
-  - Overall accuracy on random samples: **94.3% (33/35 correct)**.
-  - Surprise: 5/5 (100.0%)
-  - Fear: 5/5 (100.0%)
-  - Disgust: 5/5 (100.0%)
-  - Happiness: 4/5 (80.0%)
-  - Sadness: 4/5 (80.0%)
-  - Anger: 5/5 (100.0%)
-  - Contempt: 5/5 (100.0%)
-
----
-
-### 📦 Artifacts & Deliverables
-- `app.py`: FastAPI server with dual-engine inference and randomized batch PDF generation.
-- `static/index.html`: Glassmorphism responsive frontend with drag-and-drop, Grad-CAM viewer, and emotion badge.
-- `FA_EFER_ResNet18_VGGFace2.ipynb`: Self-contained 33-cell research notebook with 8 embedded visualization plots.
-- `train_rafau.py`: Multi-label imbalance-aware training script for RAF-AU (76 Action Units).
-- `train_emotion_model.py`: Fine-tuning script for VGGFace2 emotion classification.
-- `models/best_vggface2_raf_au.pth`: Trained VGGFace2 weights for 76 Action Units (90.1 MB).
-- `models/best_vggface2_emotion.pth`: Trained VGGFace2 weights for 7 emotions (90.1 MB).
-- `models/best_resnet50_raf_au.pth`: Trained ResNet-50 face weights for Action Units (90.6 MB).
-- `TestDb/`: Test set images structured in folders 1..7 for immediate audit verification.
-- `TestDb_Batch_Report.pdf`: Latest verified batch PDF report demonstrating 94.3% accuracy.
+### Earlier iterations
+- Hand-written FACS rules with binary AU matching: roughly 35–40% on batch reports.
+- `canonical_au()` normalisation of L/R/B/T AU variants.
+- Weighted continuous AU scoring: 42.9% on a random 35-image batch.
+- ResNet-18 + ImageNet baseline (Review 1): 83.67% test accuracy, Disgust F1 0.5686.

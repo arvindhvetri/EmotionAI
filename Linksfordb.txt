@@ -54,3 +54,16 @@ RAF-AU：
 https://drive.google.com/drive/folders/1W7MMBgbpPEs_eU6QsVnw9B1stIyFBrPI?usp=sharing
  2. Baidu Drive:
 https://pan.baidu.com/s/1XrGG8ijvV_1RrtS6FcbQ5Q  Code: f9oc
+
+▪	Mean ± 95% confidence intervals and paired Wilcoxon tests (LinUCB vs UCB1 vs static rule).
+▪	Empirical regret exponent (fit of log R(T) vs log T) compared with the theoretical LinUCB bound.
+#	Task	Detail	Done when
+1	Same code in both runtimes (in progress)	Code changes done on fix8; rebuild images, redeploy and re-measure; confirm the heavier matrix kernel gives native a clear edge.	Warm native is 20–40% faster than WASM on the heavy kernel
+2	Request-level WASM start	Keep one Spin pod running (per-request instantiation) — the router must also stop scaling WASM to 0 when idle; OCI keeps scale-to-zero cold starts.	WASM start in ms; OCI cold start ≫ WASM
+3	Fix timing window	Move scale/wait-ready calls out of the timer; use 127.0.0.1 and keep-alive sessions; sample metrics in a background thread.	No flat latency floors; latency scales with payload
+4	Reward fixes	Measure WASM memory locally (cgroup); one cost formula for all rows; set Lref / Mref from calibration data.	≥ 95% memory coverage, < 5% clipped rewards
+5	Regret and accuracy	Decision regret (wrong-arm only), unclipped realised regret, decision accuracy; oracle signature includes OCI warm/cold state.	WASM-only shows zero regret where WASM is optimal
+6	Interpretability	Log θWASM and θOCI per request; plot feature weights over time.	θ plots in the report
+7	Oracle side-effect	Calibrate all request signatures before the run, then reset both Deployments to 0.	Policies start from the same cold state
+8	Fallback update	On WASM failure, update WASM once with −1; do not credit the OCI retry to WASM.	One update per decision
+9	Traffic realism	Load the real Azure Functions trace CSV, wait for each inter-arrival gap, send burst requests concurrently.	Gaps and concurrency visible in logs
