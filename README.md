@@ -34,7 +34,7 @@ For context, published RAF-DB results with face-pretrained ResNet-50 backbones a
 
 ### Fairness across emotion classes
 
-RAF-DB has no demographic labels in our setup, so `fairness.py` treats each emotion as a group and asks whether every emotion is recognised equally well (equal opportunity). From the per-class recall above: balanced accuracy 85.0% (vs 90.4% accuracy), worst class Fear 71.6% vs best Happiness 96.0% — a recall ratio of 0.75, below the 0.80 "four-fifths" rule of thumb. The minority classes (Fear, Disgust, Anger: under 6% of training images each) average 77.5% recall vs 90.7% for the others. Class weighting, ensembling and per-class calibration are the mitigations; `fairness.py` compares them side by side.
+RAF-DB has no demographic labels in our setup, so `fairness.py` treats each emotion as a group and asks whether every emotion is recognised equally well (equal opportunity). From the per-class recall above: balanced accuracy 84.0% (vs 88.3% accuracy), worst class Fear 71.6% (53/74) vs best Happiness 92.8% — a recall ratio of 0.77, below the 0.80 "four-fifths" rule of thumb. The minority classes (Fear, Disgust, Anger: under 6% of training images each) average 77.5% recall vs 88.9% for the others. These numbers come from the single deployed model (`audit_results/`); `fairness_check.txt` there prints "NOT INTEGER" for three rows only because recall is rounded to 4 decimals and the check tolerance is tight — the underlying counts are whole. Class weighting, ensembling and per-class calibration are the mitigations; `fairness.py` compares them side by side.
 
 ```bash
 venv\Scripts\python.exe fairness.py --data_dir TestDb/DATASET

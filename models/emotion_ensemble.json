@@ -23,6 +23,6 @@
   ],
   "img_size": 224,
   "val_macro_f1": 0.8385,
-  "test_accuracy": 0.8902,
-  "test_macro_f1": 0.8304
+  "test_accuracy": 0.8830,
+  "test_macro_f1": 0.8223
 }
