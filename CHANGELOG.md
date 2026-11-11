@@ -18,7 +18,7 @@
 - Two-phase fine-tuning (head warm-up, then all layers), discriminative learning rates, cosine schedule, label smoothing, softened class weights, augmentation, mixed precision, early stopping on validation macro-F1.
 - Crash-safe training: per-epoch `*_last.pth`, `--resume`, `--eval_only`, recovery from transient cuDNN / out-of-memory errors.
 - New `ensemble_emotion.py`: validation-selected ensemble with optional per-class calibration → `models/emotion_ensemble.json`.
-- Results on the RAF-DB test set (3,068 images): single models 89.15% / 90.22% accuracy; ensemble **90.38% accuracy, 85.65% macro-F1** (previous checkpoint: about 81.6%, selected on the test set).
+- Results on the RAF-DB test set (3,068 images): single models 89.15% / 90.22% accuracy; ensemble **90.38% accuracy, 85.65% macro-F1** (previous checkpoint: about 81.6%, selected on the test set). *Superseded: these figures come from older runs; the audited single-model figures (deployed checkpoint 88.30% accuracy, 82.23% macro-F1) are in `audit_results/` and the README.*
 
 ### Evaluation fixes
 - Removed the ground-truth override and injected mismatches from the batch PDF report, and the test-set filename lookup from `/predict`. All predictions now come from the model.

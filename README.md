@@ -22,7 +22,7 @@ Model selection uses a stratified 10% validation split of the training set; the 
 | ResNet-50 + VGGFace2, seed 7, class-weight power 0.3 (uncalibrated) | 88.82% | 82.50% |
 | **Deployed: same seed-7 checkpoint + logit adjustment (tau = 0.50)** | **88.30%** | **82.23%** |
 
-All figures in this table are produced by airness.py (see udit_results/) on the full test set. The deployed system is a **single checkpoint** (models/emotion_r50_s7_cw03.pth) with per-class logit adjustment; it is not a multi-model ensemble. Earlier README figures (about 90% accuracy) came from older runs and are superseded by this audit.
+All figures in this table are produced by `fairness.py` (see `audit_results/`) on the full test set. The deployed system is a **single checkpoint** (models/emotion_r50_s7_cw03.pth) with per-class logit adjustment; it is not a multi-model ensemble. Earlier README figures (about 90% accuracy) came from older runs and are superseded by this audit.
 
 Per-class results of the deployed model:
 
