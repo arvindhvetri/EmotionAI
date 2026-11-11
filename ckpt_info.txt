@@ -1,1 +1,0 @@
-﻿{'classes': ['Surprise', 'Fear', 'Disgust', 'Happiness', 'Sadness', 'Anger', 'Neutral'], 'img_size': 224, 'preprocess': 'RGB->BGR, 0-255, minus mean_bgr [91.4953, 103.8827, 131.0912]', 'val_macro_f1': 0.8401243716439296, 'epoch': 21, 'seed': 7, 'split_seed': 42, 'val_frac': 0.1, 'class_weight_power': 0.3, 'select_metric': 'macro_f1', 'fairness_mitigation': True}

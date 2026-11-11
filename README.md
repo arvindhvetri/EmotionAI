@@ -4,7 +4,7 @@ An explainable facial emotion recognition system with two engines that share a *
 
 | Engine | Task | Model | Data |
 |---|---|---|---|
-| **Emotion engine** | 7 emotions: Surprise, Fear, Disgust, Happiness, Sadness, Anger, Neutral | ResNet-50 initialised with **VGGFace2** weights, fine-tuned (ensemble of 2) | RAF-DB (12,271 train / 3,068 test) |
+| **Emotion engine** | 7 emotions: Surprise, Fear, Disgust, Happiness, Sadness, Anger, Neutral | ResNet-50 initialised with **VGGFace2** weights, fine-tuned (single deployed checkpoint + logit adjustment) | RAF-DB (12,271 train / 3,068 test) |
 | **Action Unit (AU) engine** | 76 facial muscle movements (FACS Action Units), multi-label | InceptionResnetV1 initialised with VGGFace2 weights | RAF-AU (4,601 faces) |
 
 Every prediction comes with a **Grad-CAM heatmap** and the **Action Units** behind it, mapped to emotions with Ekman's Facial Action Coding System (FACS). A FastAPI web app serves single-image analysis (upload or webcam) and batch PDF audit reports.
@@ -17,19 +17,20 @@ Model selection uses a stratified 10% validation split of the training set; the 
 
 | Model | Test accuracy | Test macro-F1 |
 |---|---|---|
-| Baseline: ResNet-18 + ImageNet (Review 1) | 83.67% | – |
-| ResNet-50 + VGGFace2, seed 42, class-weight power 0.5 | 89.15% | 83.70% |
-| ResNet-50 + VGGFace2, seed 7, class-weight power 0.3 | 90.22% | 85.53% |
-| **Ensemble (chosen on validation) + per-class offsets** | **90.38%** | **85.65%** |
+| Baseline: ResNet-18 + ImageNet (Review 1) | 83.67% | - |
+| ResNet-50 + VGGFace2, no fairness mitigation (emotion_r50_nofair) | 88.85% | 83.27% |
+| ResNet-50 + VGGFace2, seed 7, class-weight power 0.3 (uncalibrated) | 88.82% | 82.50% |
+| **Deployed: same seed-7 checkpoint + logit adjustment (tau = 0.50)** | **88.30%** | **82.23%** |
 
-Per-class results of the ensemble:
+All figures in this table are produced by airness.py (see udit_results/) on the full test set. The deployed system is a **single checkpoint** (models/emotion_r50_s7_cw03.pth) with per-class logit adjustment; it is not a multi-model ensemble. Earlier README figures (about 90% accuracy) came from older runs and are superseded by this audit.
+
+Per-class results of the deployed model:
 
 | | Surprise | Fear | Disgust | Happiness | Sadness | Anger | Neutral |
 |---|---|---|---|---|---|---|---|
-| Precision | 0.896 | 0.803 | 0.744 | 0.956 | 0.904 | 0.870 | 0.874 |
-| Recall | 0.888 | 0.716 | 0.744 | 0.960 | 0.883 | 0.864 | 0.897 |
-| F1 | 0.892 | 0.757 | 0.744 | 0.958 | 0.893 | 0.867 | 0.885 |
-
+| Precision | 0.844 | 0.616 | 0.649 | 0.974 | 0.856 | 0.828 | 0.883 |
+| Recall | 0.891 | 0.716 | 0.775 | 0.928 | 0.883 | 0.833 | 0.856 |
+| F1 | 0.867 | 0.662 | 0.707 | 0.951 | 0.869 | 0.831 | 0.869 |
 For context, published RAF-DB results with face-pretrained ResNet-50 backbones are around 89–91% (e.g. DMUE 89.42%, EAC 90.35%).
 
 ### Fairness across emotion classes

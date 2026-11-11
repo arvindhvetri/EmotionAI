@@ -16,7 +16,7 @@ Most facial emotion recognition (FER) models report one overall accuracy, which 
 |---|---|---|
 | Web UI | `static/index.html` | Upload / webcam / sample images; shows emotion, heatmap and the top Action Units; triggers the batch report |
 | API | `app.py` (FastAPI + Uvicorn) | Loads models once at start-up; serves `/predict`, `/generate-report`, `/api/samples` |
-| Emotion engine | `train_emotion_resnet50_vggface2.py`, `ensemble_emotion.py` | ResNet-50 + VGGFace2 classifiers (7 emotions), combined as a validation-selected ensemble |
+| Emotion engine | `train_emotion_resnet50_vggface2.py`, `ensemble_emotion.py` | ResNet-50 + VGGFace2 classifiers (7 emotions), deployed as a single checkpoint (`emotion_r50_s7_cw03.pth`) with validation-fitted per-class logit adjustment (`ensemble_emotion.py` supports multi-model averaging, but the deployed config selects one model) |
 | AU engine | `train_rafau.py` | InceptionResnetV1 + VGGFace2 multi-label detector (76 AU labels) |
 | FACS rules | `classify_emotion_from_aus()` in `app.py` | Maps AU probabilities to an emotion (explanation and fallback) |
 | Explanations | `pytorch-grad-cam` (LayerCAM) | Emotion heatmap on ResNet-50 `layer3`+`layer4`, averaged over all ensemble models and the mirrored image; top-AU heatmap on InceptionResnetV1 `repeat_2`+`mixed_7a`+`block8`. Both smoothed (Gaussian), robust-normalised (30th–99.5th percentile) and faded at the image border |
