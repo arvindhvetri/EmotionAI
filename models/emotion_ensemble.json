@@ -1,17 +1,17 @@
 {
   "models": [
-    "models/emotion_r50_s7_cw03.pth",
-    "models/emotion_r50_s2024_cw03.pth"
+    "models/emotion_r50_s7_cw03.pth"
   ],
   "class_bias": [
-    0.0,
-    0.0,
-    0.0,
-    0.4,
-    -0.4,
-    0.0,
-    -0.1
+    -0.0219,
+    0.7401,
+    0.2717,
+    -0.676,
+    -0.2366,
+    0.2802,
+    -0.3575
   ],
+  "calibration_method": "logit_adjustment (tau=0.50)",
   "classes": [
     "Surprise",
     "Fear",
@@ -22,7 +22,7 @@
     "Neutral"
   ],
   "img_size": 224,
-  "val_macro_f1": 0.8426,
-  "test_accuracy": 0.9038,
-  "test_macro_f1": 0.8565
+  "val_macro_f1": 0.8385,
+  "test_accuracy": 0.8902,
+  "test_macro_f1": 0.8304
 }

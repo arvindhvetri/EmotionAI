@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emotion AI Studio | 76 Action Units & Grad-CAM Explainability</title>
-    <meta name="description" content="State-of-the-art Facial Action Unit detection and Emotion Recognition powered by VGGFace2 InceptionResnetV1, canonical FACS rules, and Grad-CAM visual explainability.">
+    <title>Emotion AI Studio | 76 Action Units & LayerCAM Explainability</title>
+    <meta name="description" content="State-of-the-art Facial Action Unit detection and Emotion Recognition powered by VGGFace2 InceptionResnetV1, canonical FACS rules, and LayerCAM visual explainability.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1760,10 +1760,10 @@
                         </svg>
                     </div>
                     <h3>Ready for Facial Analysis</h3>
-                    <p>Upload a face portrait or click any TestDb emotion sample in the left panel to execute deep Action Unit feature extraction and generate Grad-CAM explainability heatmaps.</p>
+                    <p>Upload a face portrait or click any TestDb emotion sample in the left panel to execute deep Action Unit feature extraction and generate LayerCAM explainability heatmaps.</p>
                     <div class="idle-pills-row">
                         <div class="idle-feature-pill"><span>76</span> Facial Action Units</div>
-                        <div class="idle-feature-pill"><span>Block8</span> Grad-CAM Heatmap</div>
+                        <div class="idle-feature-pill"><span>Multi-Depth</span> LayerCAM Heatmap</div>
                         <div class="idle-feature-pill"><span>Ekman FACS</span> Psychological Engine</div>
                     </div>
                 </div>
@@ -1785,7 +1785,7 @@
                         </div>
                         <div class="loading-step-item active" id="step-3">
                             <div class="loading-step-dot"></div>
-                            <span>Computing Grad-CAM Spatial Activations</span>
+                            <span>Computing LayerCAM AU Spatial Activations</span>
                         </div>
                         <div class="loading-step-item active" id="step-4">
                             <div class="loading-step-dot"></div>
@@ -1825,9 +1825,9 @@
                                         <path d="M12 16v-4"></path>
                                         <path d="M12 8h.01"></path>
                                     </svg>
-                                    Visual Explainability (Grad-CAM)
+                                    Visual Explainability (LayerCAM — AU Attention)
                                 </h3>
-                                <p id="studio-subtext">Spatial activation heatmap computed on InceptionResnetV1 block8</p>
+                                <p id="studio-subtext">Multi-depth LayerCAM on InceptionResnetV1 (repeat_2 + mixed_7a + block8)</p>
                             </div>
 
                             <div class="studio-mode-switcher">
@@ -1841,7 +1841,7 @@
                         <div class="comparison-stage">
                             <!-- View 1: Interactive Split Slider -->
                             <div class="slider-comparison-container" id="slider-comparison-box">
-                                <img src="" alt="Grad-CAM Heatmap" class="slider-img" id="slider-heatmap-img">
+                                <img src="" alt="LayerCAM Heatmap" class="slider-img" id="slider-heatmap-img">
                                 <div class="slider-overlay-wrap" id="slider-overlay-wrap">
                                     <img src="" alt="Original Input" class="slider-overlay-img" id="slider-original-img">
                                 </div>
@@ -1852,7 +1852,7 @@
                                     </svg>
                                 </div>
                                 <span class="slider-badge-left">Original Face</span>
-                                <span class="slider-badge-right">Grad-CAM Heatmap</span>
+                                <span class="slider-badge-right">LayerCAM (Top AU)</span>
                             </div>
 
                             <!-- View 2: Side-by-Side Grid -->
@@ -1866,10 +1866,10 @@
                                 </div>
                                 <div class="sbs-box">
                                     <div class="sbs-label">
-                                        <span>GRAD-CAM HEATMAP</span>
-                                        <span style="color: #a855f7;" id="sbs-cam-method">Occlusion</span>
+                                        <span>LAYERCAM AU HEATMAP</span>
+                                        <span style="color: #a855f7;" id="sbs-cam-method">LayerCAM</span>
                                     </div>
-                                    <img src="" alt="Grad-CAM" class="sbs-img" id="sbs-cam-img">
+                                    <img src="" alt="LayerCAM" class="sbs-img" id="sbs-cam-img">
                                 </div>
                             </div>
 
@@ -1890,7 +1890,7 @@
 
                         <!-- Explainability Callout Text -->
                         <div class="cam-explanation-note" id="cam-explanation-note">
-                            <strong>Reasoning:</strong> The Grad-CAM heatmap above highlights the facial muscle regions (in intense red/amber) that the model focused on to predict primary Action Unit <strong id="note-top-au">AU 12</strong>.
+                            <strong>Reasoning:</strong> The LayerCAM heatmap above highlights the facial muscle regions (in intense red/amber) that the model focused on to predict primary Action Unit <strong id="note-top-au">AU 12</strong>.
                         </div>
                     </div>
 
@@ -2662,11 +2662,11 @@
             }
         }
 
-        // Download Grad-CAM Heatmap Image
+        // Download LayerCAM Heatmap Image
         function downloadGradCam() {
             const camB64 = lastAnalysisResult && (camSource === 'emotion' ? lastAnalysisResult.emotion_grad_cam : lastAnalysisResult.grad_cam);
             if (!camB64) {
-                showToast("No Grad-CAM heatmap generated yet", true);
+                showToast("No LayerCAM heatmap generated yet", true);
                 return;
             }
             const a = document.createElement('a');
@@ -2675,7 +2675,7 @@
             document.body.appendChild(a);
             a.click();
             a.remove();
-            showToast("Grad-CAM image downloaded!");
+            showToast("LayerCAM heatmap downloaded!");
         }
 
         // Copy Analysis Result as JSON

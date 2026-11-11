@@ -42,8 +42,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from PIL import Image
-from sklearn.metrics import classification_report, confusion_matrix, f1_score
-from sklearn.model_selection import StratifiedShuffleSplit
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 
@@ -190,6 +188,29 @@ class ImageList(Dataset):
 # --------------------------------------------------------------------------
 # Train / evaluate
 # --------------------------------------------------------------------------
+def _macro_f1(ys, ps, num_classes=7):
+    f1s = []
+    for k in range(num_classes):
+        tp = int(((ys == k) & (ps == k)).sum())
+        fp = int(((ys != k) & (ps == k)).sum())
+        fn = int(((ys == k) & (ps != k)).sum())
+        denom = 2 * tp + fp + fn
+        f1s.append((2 * tp / denom) if denom else 0.0)
+    return float(np.mean(f1s))
+
+
+def _stratified_split(labels, val_frac, seed):
+    rng = np.random.RandomState(seed)
+    tr_idx, va_idx = [], []
+    for k in np.unique(labels):
+        idx = np.where(labels == k)[0]
+        rng.shuffle(idx)
+        n_val = max(1, int(round(len(idx) * val_frac)))
+        va_idx.extend(idx[:n_val].tolist())
+        tr_idx.extend(idx[n_val:].tolist())
+    return np.array(tr_idx), np.array(va_idx)
+
+
 def evaluate(model, loader, device, tta=True):
     model.eval(); ys, ps = [], []
     with torch.no_grad():
@@ -200,7 +221,7 @@ def evaluate(model, loader, device, tta=True):
                 logits = logits + model(torch.flip(x, dims=[3]))   # horizontal-flip test-time augmentation
             ps += logits.argmax(1).cpu().tolist(); ys += y.tolist()
     ys, ps = np.array(ys), np.array(ps)
-    return (ys == ps).mean(), f1_score(ys, ps, average="macro"), ys, ps
+    return (ys == ps).mean(), _macro_f1(ys, ps), ys, ps
 
 
 def main():
@@ -243,7 +264,11 @@ def main():
     train_all = list_images(os.path.join(a.data_dir, "train"))
     test_items = list_images(os.path.join(a.data_dir, "test"))
     labels = np.array([y for _, y in train_all])
-    tr_idx, va_idx = next(StratifiedShuffleSplit(1, test_size=a.val_frac, random_state=a.split_seed).split(labels, labels))
+    try:
+        from sklearn.model_selection import StratifiedShuffleSplit
+        tr_idx, va_idx = next(StratifiedShuffleSplit(1, test_size=a.val_frac, random_state=a.split_seed).split(labels, labels))
+    except ImportError:
+        tr_idx, va_idx = _stratified_split(labels, a.val_frac, a.split_seed)
     train_tf, test_tf = build_transforms(a.img_size)
     tr = ImageList([train_all[i] for i in tr_idx], train_tf)
     va = ImageList([train_all[i] for i in va_idx], test_tf)
@@ -347,9 +372,17 @@ def main():
     model.load_state_dict(best["state_dict"]); best_ep = best.get("epoch", best_ep)
     acc, mf1, ys, ps = evaluate(model, tel, device)
     print(f"\n[best epoch {best_ep}] TEST accuracy {acc*100:.2f}% | TEST macro-F1 {mf1*100:.2f}%")
-    print(classification_report(ys, ps, target_names=EMOTIONS, digits=4, zero_division=0))
-    print("confusion matrix (rows = true, cols = predicted):")
-    print(confusion_matrix(ys, ps))
+    try:
+        from sklearn.metrics import classification_report, confusion_matrix
+        print(classification_report(ys, ps, target_names=EMOTIONS, digits=4, zero_division=0))
+        print("confusion matrix (rows = true, cols = predicted):")
+        print(confusion_matrix(ys, ps))
+    except ImportError:
+        cm = np.zeros((len(EMOTIONS), len(EMOTIONS)), dtype=int)
+        for t, p in zip(ys, ps):
+            cm[t, p] += 1
+        print("confusion matrix (rows = true, cols = predicted):")
+        print(cm)
 
 
 if __name__ == "__main__":

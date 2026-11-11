@@ -10,8 +10,19 @@ import os
 import numpy as np
 import base64
 import random
+import sys
+import types
 import tempfile
 from fpdf import FPDF
+try:
+    import sklearn.decomposition  # noqa: F401
+except ImportError:
+    # Work around Windows Application Control blocking scikit-learn's _liblinear.pyd when
+    # pytorch_grad_cam eagerly imports KernelPCA/NMF (unused by LayerCAM/GradCAM).
+    _sk_decomp = types.ModuleType("sklearn.decomposition")
+    _sk_decomp.KernelPCA = None
+    _sk_decomp.NMF = None
+    sys.modules.setdefault("sklearn.decomposition", _sk_decomp)
 from pytorch_grad_cam import GradCAM, LayerCAM
 import cv2
 from pytorch_grad_cam.utils.image import show_cam_on_image
@@ -405,6 +416,7 @@ emotion_cam = None
 emotion_models = []                      # one or more ResNet-50 + VGGFace2 models (ensemble)
 emotion_class_bias = torch.zeros(7)      # per-class log-prior offsets chosen on validation
 emotion_paths = []
+ens = {}
 if os.path.exists(ensemble_json):
     import json
     with open(ensemble_json) as fjs:
@@ -428,7 +440,8 @@ if emotion_models:
         transforms.Resize((emotion_img_size, emotion_img_size)),
         ToVGGFace2Tensor(),  # BGR, 0-255, minus VGGFace2 mean - same as training
     ])
-    EMOTION_BACKBONE = "ResNet-50 + VGGFace2" + (f" (ensemble of {len(emotion_models)})" if len(emotion_models) > 1 else "")
+    calib_str = f" + {ens.get('calibration_method', 'calibrated')}" if any(emotion_class_bias != 0) else ""
+    EMOTION_BACKBONE = "ResNet-50 + VGGFace2" + (f" (ensemble of {len(emotion_models)})" if len(emotion_models) > 1 else "") + calib_str
     emotion_class_bias = emotion_class_bias.to(device)
 else:
     print("Note: no ResNet-50 emotion model found - using the older InceptionResnetV1 emotion model.")
@@ -559,7 +572,7 @@ def run_inference(image: Image.Image, filename: str = None):
     Run the full pipeline on a PIL image:
     1. Action Unit prediction & confidence calculation via VGGFace2 RAF-AU model
     2. Deep emotion classification via VGGFace2 Emotion model
-    3. Grad-CAM visual explainability heatmap on block8
+    3. LayerCAM visual explainability heatmap on Action Unit model (repeat_2 + mixed_7a + block8)
     """
     tensor = transform(image).unsqueeze(0).to(device)
 
@@ -718,7 +731,7 @@ async def generate_report():
     pdf.set_font("helvetica", "B", 22)
     pdf.cell(0, 20, "Emotion AI - Batch Test Report", ln=True, align='C')
     pdf.set_font("helvetica", "", 12)
-    pdf.cell(0, 10, f"Emotion model: {EMOTION_BACKBONE} | AU model: VGGFace2 (RAF-AU) | Grad-CAM", ln=True, align='C')
+    pdf.cell(0, 10, f"Emotion model: {EMOTION_BACKBONE} | AU model: VGGFace2 (RAF-AU) | LayerCAM (Top AU)", ln=True, align='C')
     pdf.cell(0, 10, "All predictions come directly from the trained model", ln=True, align='C')
     pdf.ln(10)
 
@@ -793,7 +806,7 @@ async def generate_report():
                 pdf.image(cam_tmp_path, x=46, y=y_before, w=34); x_next = 82
                 pdf.set_font("helvetica", "", 6.5)
                 pdf.set_xy(46, y_before + 34.5)
-                pdf.cell(34, 3, f"AU {top_au} heatmap", align="C")
+                pdf.cell(34, 3, f"AU {top_au} LayerCAM", align="C")
 
             pdf.set_xy(x_next + 2, y_before)
             pdf.set_font("helvetica", "", 8)

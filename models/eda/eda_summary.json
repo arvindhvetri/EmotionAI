@@ -1,0 +1,60 @@
+{
+  "runtime_device": "CPU",
+  "raf_db": {
+    "n_official_train": 12271,
+    "n_stratified_train": 11043,
+    "n_stratified_val": 1228,
+    "n_test": 3068,
+    "n_total": 15339,
+    "corrupt_images": 0,
+    "imbalance_ratio_max_min": 16.9822,
+    "normalized_shannon_entropy": 0.843,
+    "gini_imbalance_index": 0.4279,
+    "chi2_split_homogeneity": {
+      "chi2": 6.4349,
+      "dof": 12,
+      "p_value": 0.8926
+    },
+    "empirical_bgr_mean_0_255": [
+      102.25,
+      114.62,
+      146.77
+    ],
+    "vggface2_caffe_bgr_mean": [
+      91.4953,
+      103.8827,
+      131.0912
+    ],
+    "cosine_silhouette_2048d": 0.379
+  },
+  "raf_au": {
+    "n_annotated_faces": 4601,
+    "n_unique_au_tokens": 76,
+    "n_null_faces": 253,
+    "n_unilateral_faces": 363,
+    "label_cardinality_overall": 3.6277,
+    "label_density": 0.0477,
+    "pos_weight_min_max": [
+      0.63,
+      4600.0
+    ],
+    "facs_prototype_distribution": {
+      "Sadness": 311,
+      "Happiness": 693,
+      "Contempt": 107,
+      "Neutral / Non-Prototypical": 1320,
+      "Surprise": 427,
+      "Disgust": 1078,
+      "Anger": 308,
+      "Fear": 357
+    }
+  },
+  "exported_300dpi_figures": [
+    "fig_eda1_rafdb_imbalance.png",
+    "fig_eda2_photometric_bgr.png",
+    "fig_eda3_spatial_anatomy.png",
+    "fig_eda4_feature_manifold.png",
+    "fig_eda5_rafau_multilabel.png",
+    "fig_eda6_au_cooccurrence_facs.png"
+  ]
+}

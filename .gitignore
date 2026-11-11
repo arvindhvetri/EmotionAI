@@ -31,6 +31,7 @@ models/best_resnet50_raf_au.pth
 # ---------------- Local-only material ----------------
 _archive/
 _private/
+trash/
 *.pdf
 *.log
 *.tmp
