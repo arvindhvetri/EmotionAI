@@ -1,0 +1,11 @@
+name: with fairness: ensemble + per-class calibration (DEPLOYED)
+Surprise   support= 329 recall=0.8906 tp=293.01 OK
+Fear       support=  74 recall=0.7162 tp=53.00 OK
+Disgust    support= 160 recall=0.7750 tp=124.00 OK
+Happiness  support=1185 recall=0.9283 tp=1100.04 NOT INTEGER
+Sadness    support= 478 recall=0.8828 tp=421.98 NOT INTEGER
+Anger      support= 162 recall=0.8333 tp=134.99 OK
+Neutral    support= 680 recall=0.8559 tp=582.01 NOT INTEGER
+summary: {"classes_evaluated": 7, "balanced_accuracy": 0.8403, "macro_f1": 0.8223, "worst_recall_class": "Fear", "worst_recall": 0.7162, "best_recall_class": "Happiness", "best_recall": 0.9283, "recall_gap": 0.2121, "recall_ratio": 0.7715, "recall_std": 0.0677, "worst_f1_class": "Fear", "worst_f1": 0.6625, "f1_gap": 0.2882, "fpr_gap": 0.0226, "max_prediction_bias": ["Happiness", -0.0182], "passes_four_fifths": false, "accuracy": 0.883, "accuracy_minus_balanced": 0.0427, "minority_classes": ["Fear", "Disgust", "Anger"], "minority_mean_recall": 0.7748, "majority_mean_recall": 0.8894, "minority_recall_gap": 0.1146}
+non-integer rows: 3 (must be 0)
+baseline summary: {"classes_evaluated": 7, "balanced_accuracy": 0.8339, "macro_f1": 0.8327, "worst_recall_class": "Fear", "worst_recall": 0.6622, "best_recall_class": "Happiness", "best_recall": 0.9451, "recall_gap": 0.2829, "recall_ratio": 0.7007, "recall_std": 0.0855, "worst_f1_class": "Fear", "worst_f1": 0.6667, "f1_gap": 0.2853, "fpr_gap": 0.0344, "max_prediction_bias": ["Happiness", -0.0055], "passes_four_fifths": false, "accuracy": 0.8885, "accuracy_minus_balanced": 0.0546, "minority_classes": ["Fear", "Disgust", "Anger"], "minority_mean_recall": 0.7548, "majority_mean_recall": 0.8932, "minority_recall_gap": 0.1384}

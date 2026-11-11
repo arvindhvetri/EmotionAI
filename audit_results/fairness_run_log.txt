@@ -1,0 +1,46 @@
+[eval] emotion_r50_nofair.pth
+[eval] emotion_r50_s7_cw03.pth
+
+================ FAIRNESS AUDIT (RAF-DB test, 3068 images) ================
+configuration                                                 acc bal.acc        worst rec rec gap  ratio 4/5
+WITHOUT fairness: emotion_r50_nofair (no weights, acc. sel 88.85%  83.39%      Fear  66.2%   28.3  0.701 NO
+with fairness: emotion_r50_s7_cw03 (class weight p=0.3)    88.82%  82.60%      Fear  63.5%   30.4  0.676 NO
+ensemble (no calibration)                                  88.82%  82.60%      Fear  63.5%   30.4  0.676 NO
+with fairness: ensemble + per-class calibration (DEPLOYED) 88.30%  84.03%      Fear  71.6%   21.2  0.771 NO
+
+Deployed model, per class:
+class       train% support   prec recall     f1    FNR pred-true share
+Surprise     10.5%     329  0.844  0.891  0.867  0.109           +0.6%
+Fear          2.3%      74  0.616  0.716  0.662  0.284           +0.4%
+Disgust       5.8%     160  0.649  0.775  0.707  0.225           +1.0%
+Happiness    38.9%    1185  0.974  0.928  0.951  0.072           -1.8%
+Sadness      16.2%     478  0.856  0.883  0.869  0.117           +0.5%
+Anger         5.8%     162  0.828  0.833  0.831  0.167           +0.0%
+Neutral      20.6%     680  0.883  0.856  0.869  0.144           -0.7%
+
+Minority classes ['Fear', 'Disgust', 'Anger']: mean recall 77.5% vs 88.9% for the others (gap 11.5 points)
+Accuracy 88.30% vs balanced accuracy 84.03% (difference +4.27 points)
+
+================ WITH vs WITHOUT FAIRNESS (full test set) ================
+metric                           without      with    change
+Accuracy                          88.85%    88.30%    -0.55
+Balanced accuracy                 83.39%    84.03%    +0.64
+Macro-F1                          83.27%    82.23%    -1.04
+Worst-class recall                66.22%    71.62%    +5.40
+Recall gap (best - worst)         28.29%    21.21%    -7.08
+Recall ratio (worst / best)        0.701     0.771    +0.071
+Minority-class mean recall        75.48%    77.48%    +2.00
+Passes four-fifths rule            False     False
+
+Recall per class (without -> with):
+  Surprise   (train 10.5%)   89.4% ->  89.1%  (-0.3)
+  Fear       (train  2.3%)   66.2% ->  71.6%  (+5.4)
+  Disgust    (train  5.8%)   77.5% ->  77.5%  (+0.0)
+  Happiness  (train 38.9%)   94.5% ->  92.8%  (-1.7)
+  Sadness    (train 16.2%)   86.2% ->  88.3%  (+2.1)
+  Anger      (train  5.8%)   82.7% ->  83.3%  (+0.6)
+  Neutral    (train 20.6%)   87.2% ->  85.6%  (-1.6)
+
+[saved] models/fairness_report.json and models/fairness_report.png - restart the app to show these in /predict and the PDF report
+
+--- stderr ---

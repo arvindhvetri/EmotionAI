@@ -20,11 +20,10 @@ import os
 
 import numpy as np
 import torch
-from sklearn.metrics import classification_report, confusion_matrix, f1_score
-from sklearn.model_selection import StratifiedShuffleSplit
 from torch.utils.data import DataLoader
 
-from train_emotion_resnet50_vggface2 import (EMOTIONS, ImageList, VGGFace2ResNet50, build_transforms, list_images)
+from train_emotion_resnet50_vggface2 import (EMOTIONS, ImageList, VGGFace2ResNet50, _macro_f1, _stratified_split,
+                                             build_transforms, list_images)
 
 
 @torch.no_grad()
@@ -40,7 +39,7 @@ def predict_probs(model, loader, device):
 def score(probs, y, bias=None):
     logp = np.log(probs + 1e-9) + (0 if bias is None else bias)
     pred = logp.argmax(1)
-    return f1_score(y, pred, average="macro"), (pred == y).mean(), pred
+    return _macro_f1(y, pred), (pred == y).mean(), pred
 
 
 def fit_bias(probs, y, steps=(-0.6, -0.4, -0.2, -0.1, 0.0, 0.1, 0.2, 0.4), rounds=2):
@@ -81,7 +80,11 @@ def main():
 
     train_all = list_images(os.path.join(a.data_dir, "train"))
     labels = np.array([y for _, y in train_all])
-    _, va_idx = next(StratifiedShuffleSplit(1, test_size=a.val_frac, random_state=a.split_seed).split(labels, labels))
+    try:
+        from sklearn.model_selection import StratifiedShuffleSplit
+        _, va_idx = next(StratifiedShuffleSplit(1, test_size=a.val_frac, random_state=a.split_seed).split(labels, labels))
+    except ImportError:
+        _, va_idx = _stratified_split(labels, a.val_frac, a.split_seed)
     _, test_tf = build_transforms(a.img_size)
     va = ImageList([train_all[i] for i in va_idx], test_tf)
     te = ImageList(list_images(os.path.join(a.data_dir, "test")), test_tf)
@@ -121,9 +124,13 @@ def main():
 
     tf1, tacc, pred = score(pt, yt, bias)
     print(f"\n[TEST] accuracy {tacc*100:.2f}% | macro-F1 {tf1*100:.2f}%")
-    print(classification_report(yt, pred, target_names=EMOTIONS, digits=4, zero_division=0))
-    print("confusion matrix (rows = true, cols = predicted):")
-    print(confusion_matrix(yt, pred))
+    try:
+        from sklearn.metrics import classification_report, confusion_matrix
+        print(classification_report(yt, pred, target_names=EMOTIONS, digits=4, zero_division=0))
+        print("confusion matrix (rows = true, cols = predicted):")
+        print(confusion_matrix(yt, pred))
+    except ImportError:
+        pass
     from fairness import disparity_summary, per_class_metrics
     ds = disparity_summary(per_class_metrics(yt, pred, EMOTIONS), yt, pred)
     print(f"[fairness] balanced accuracy {ds['balanced_accuracy']*100:.2f}% | worst class {ds['worst_recall_class']} "

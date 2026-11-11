@@ -1,0 +1,943 @@
+{
+  "dataset": "RAF-DB test",
+  "n_test": 3068,
+  "final": {
+    "name": "with fairness: ResNet-50 + logit_adjustment (tau=0.50) (DEPLOYED)",
+    "per_class": [
+      {
+        "class": "Surprise",
+        "support": 329,
+        "train_share": 0.1051,
+        "true_share": 0.1072,
+        "pred_share": 0.1177,
+        "precision": 0.841,
+        "recall": 0.8997,
+        "f1": 0.8694,
+        "fnr": 0.1003,
+        "fpr": 0.023
+      },
+      {
+        "class": "Fear",
+        "support": 74,
+        "train_share": 0.0229,
+        "true_share": 0.0241,
+        "pred_share": 0.0179,
+        "precision": 0.7612,
+        "recall": 0.6946,
+        "f1": 0.7262,
+        "fnr": 0.3054,
+        "fpr": 0.004
+      },
+      {
+        "class": "Disgust",
+        "support": 160,
+        "train_share": 0.0584,
+        "true_share": 0.0522,
+        "pred_share": 0.0522,
+        "precision": 0.7394,
+        "recall": 0.7625,
+        "f1": 0.7508,
+        "fnr": 0.2375,
+        "fpr": 0.0148
+      },
+      {
+        "class": "Happiness",
+        "support": 1185,
+        "train_share": 0.3889,
+        "true_share": 0.3862,
+        "pred_share": 0.3771,
+        "precision": 0.9632,
+        "recall": 0.9224,
+        "f1": 0.9424,
+        "fnr": 0.0776,
+        "fpr": 0.0218
+      },
+      {
+        "class": "Sadness",
+        "support": 478,
+        "train_share": 0.1615,
+        "true_share": 0.1558,
+        "pred_share": 0.1633,
+        "precision": 0.8722,
+        "recall": 0.887,
+        "f1": 0.8795,
+        "fnr": 0.113,
+        "fpr": 0.0293
+      },
+      {
+        "class": "Anger",
+        "support": 162,
+        "train_share": 0.0575,
+        "true_share": 0.0528,
+        "pred_share": 0.0522,
+        "precision": 0.8452,
+        "recall": 0.8741,
+        "f1": 0.8594,
+        "fnr": 0.1259,
+        "fpr": 0.0079
+      },
+      {
+        "class": "Neutral",
+        "support": 680,
+        "train_share": 0.2057,
+        "true_share": 0.2216,
+        "pred_share": 0.2197,
+        "precision": 0.881,
+        "recall": 0.875,
+        "f1": 0.878,
+        "fnr": 0.125,
+        "fpr": 0.0331
+      }
+    ],
+    "summary": {
+      "classes_evaluated": 7,
+      "balanced_accuracy": 0.8364,
+      "macro_f1": 0.8133,
+      "worst_recall_class": "Fear",
+      "worst_recall": 0.6946,
+      "best_recall_class": "Happiness",
+      "best_recall": 0.9224,
+      "recall_gap": 0.2278,
+      "recall_ratio": 0.753,
+      "recall_std": 0.1168,
+      "worst_f1_class": "Fear",
+      "worst_f1": 0.6667,
+      "f1_gap": 0.2863,
+      "fpr_gap": 0.0291,
+      "max_prediction_bias": [
+        "Surprise",
+        0.0105
+      ],
+      "passes_four_fifths": false,
+      "accuracy": 0.8782,
+      "accuracy_minus_balanced": 0.0418,
+      "minority_classes": [
+        "Fear",
+        "Disgust",
+        "Anger"
+      ],
+      "minority_mean_recall": 0.7771,
+      "majority_mean_recall": 0.8809,
+      "minority_recall_gap": 0.1038
+    }
+  },
+  "comparison": [
+    {
+      "name": "WITHOUT fairness: emotion_r50_nofair (no weights, acc. selection)",
+      "per_class": [
+        {
+          "class": "Surprise",
+          "support": 329,
+          "train_share": 0.1051,
+          "true_share": 0.1072,
+          "pred_share": 0.1108,
+          "precision": 0.8647,
+          "recall": 0.8936,
+          "f1": 0.8789,
+          "fnr": 0.1064,
+          "fpr": 0.0168
+        },
+        {
+          "class": "Fear",
+          "support": 74,
+          "train_share": 0.0229,
+          "true_share": 0.0241,
+          "pred_share": 0.0238,
+          "precision": 0.6712,
+          "recall": 0.6622,
+          "f1": 0.6667,
+          "fnr": 0.3378,
+          "fpr": 0.008
+        },
+        {
+          "class": "Disgust",
+          "support": 160,
+          "train_share": 0.0584,
+          "true_share": 0.0522,
+          "pred_share": 0.0564,
+          "precision": 0.7168,
+          "recall": 0.775,
+          "f1": 0.7447,
+          "fnr": 0.225,
+          "fpr": 0.0169
+        },
+        {
+          "class": "Happiness",
+          "support": 1185,
+          "train_share": 0.3889,
+          "true_share": 0.3862,
+          "pred_share": 0.3807,
+          "precision": 0.9589,
+          "recall": 0.9451,
+          "f1": 0.952,
+          "fnr": 0.0549,
+          "fpr": 0.0255
+        },
+        {
+          "class": "Sadness",
+          "support": 478,
+          "train_share": 0.1615,
+          "true_share": 0.1558,
+          "pred_share": 0.1538,
+          "precision": 0.8729,
+          "recall": 0.8619,
+          "f1": 0.8674,
+          "fnr": 0.1381,
+          "fpr": 0.0232
+        },
+        {
+          "class": "Anger",
+          "support": 162,
+          "train_share": 0.0575,
+          "true_share": 0.0528,
+          "pred_share": 0.0495,
+          "precision": 0.8816,
+          "recall": 0.8272,
+          "f1": 0.8535,
+          "fnr": 0.1728,
+          "fpr": 0.0062
+        },
+        {
+          "class": "Neutral",
+          "support": 680,
+          "train_share": 0.2057,
+          "true_share": 0.2216,
+          "pred_share": 0.2249,
+          "precision": 0.8594,
+          "recall": 0.8721,
+          "f1": 0.8657,
+          "fnr": 0.1279,
+          "fpr": 0.0406
+        }
+      ],
+      "summary": {
+        "classes_evaluated": 7,
+        "balanced_accuracy": 0.8339,
+        "macro_f1": 0.8327,
+        "worst_recall_class": "Fear",
+        "worst_recall": 0.6622,
+        "best_recall_class": "Happiness",
+        "best_recall": 0.9451,
+        "recall_gap": 0.2829,
+        "recall_ratio": 0.7007,
+        "recall_std": 0.0855,
+        "worst_f1_class": "Fear",
+        "worst_f1": 0.6667,
+        "f1_gap": 0.2853,
+        "fpr_gap": 0.0344,
+        "max_prediction_bias": [
+          "Happiness",
+          -0.0055
+        ],
+        "passes_four_fifths": false,
+        "accuracy": 0.8885,
+        "accuracy_minus_balanced": 0.0546,
+        "minority_classes": [
+          "Fear",
+          "Disgust",
+          "Anger"
+        ],
+        "minority_mean_recall": 0.7548,
+        "majority_mean_recall": 0.8932,
+        "minority_recall_gap": 0.1384
+      },
+      "role": "without_fairness"
+    },
+    {
+      "name": "with fairness: best_resnet50_vggface2_emotion (class weight p=0.5)",
+      "per_class": [
+        {
+          "class": "Surprise",
+          "support": 329,
+          "train_share": 0.1051,
+          "true_share": 0.1072,
+          "pred_share": 0.1085,
+          "precision": 0.8739,
+          "recall": 0.8845,
+          "f1": 0.8792,
+          "fnr": 0.1155,
+          "fpr": 0.0153
+        },
+        {
+          "class": "Fear",
+          "support": 74,
+          "train_share": 0.0229,
+          "true_share": 0.0241,
+          "pred_share": 0.0241,
+          "precision": 0.6757,
+          "recall": 0.6757,
+          "f1": 0.6757,
+          "fnr": 0.3243,
+          "fpr": 0.008
+        },
+        {
+          "class": "Disgust",
+          "support": 160,
+          "train_share": 0.0584,
+          "true_share": 0.0522,
+          "pred_share": 0.0561,
+          "precision": 0.7209,
+          "recall": 0.775,
+          "f1": 0.747,
+          "fnr": 0.225,
+          "fpr": 0.0165
+        },
+        {
+          "class": "Happiness",
+          "support": 1185,
+          "train_share": 0.3889,
+          "true_share": 0.3862,
+          "pred_share": 0.382,
+          "precision": 0.9608,
+          "recall": 0.9502,
+          "f1": 0.9555,
+          "fnr": 0.0498,
+          "fpr": 0.0244
+        },
+        {
+          "class": "Sadness",
+          "support": 478,
+          "train_share": 0.1615,
+          "true_share": 0.1558,
+          "pred_share": 0.1633,
+          "precision": 0.8303,
+          "recall": 0.8703,
+          "f1": 0.8498,
+          "fnr": 0.1297,
+          "fpr": 0.0328
+        },
+        {
+          "class": "Anger",
+          "support": 162,
+          "train_share": 0.0575,
+          "true_share": 0.0528,
+          "pred_share": 0.0518,
+          "precision": 0.8616,
+          "recall": 0.8457,
+          "f1": 0.8536,
+          "fnr": 0.1543,
+          "fpr": 0.0076
+        },
+        {
+          "class": "Neutral",
+          "support": 680,
+          "train_share": 0.2057,
+          "true_share": 0.2216,
+          "pred_share": 0.2141,
+          "precision": 0.8691,
+          "recall": 0.8397,
+          "f1": 0.8542,
+          "fnr": 0.1603,
+          "fpr": 0.036
+        }
+      ],
+      "summary": {
+        "classes_evaluated": 7,
+        "balanced_accuracy": 0.8344,
+        "macro_f1": 0.8307,
+        "worst_recall_class": "Fear",
+        "worst_recall": 0.6757,
+        "best_recall_class": "Happiness",
+        "best_recall": 0.9502,
+        "recall_gap": 0.2745,
+        "recall_ratio": 0.7111,
+        "recall_std": 0.0811,
+        "worst_f1_class": "Fear",
+        "worst_f1": 0.6757,
+        "f1_gap": 0.2798,
+        "fpr_gap": 0.0284,
+        "max_prediction_bias": [
+          "Sadness",
+          0.0075
+        ],
+        "passes_four_fifths": false,
+        "accuracy": 0.8849,
+        "accuracy_minus_balanced": 0.0505,
+        "minority_classes": [
+          "Fear",
+          "Disgust",
+          "Anger"
+        ],
+        "minority_mean_recall": 0.7655,
+        "majority_mean_recall": 0.8862,
+        "minority_recall_gap": 0.1207
+      }
+    },
+    {
+      "name": "with fairness: emotion_r50_s7_cw03 (class weight p=0.3)",
+      "per_class": [
+        {
+          "class": "Surprise",
+          "support": 329,
+          "train_share": 0.1051,
+          "true_share": 0.1072,
+          "pred_share": 0.1118,
+          "precision": 0.8513,
+          "recall": 0.8875,
+          "f1": 0.869,
+          "fnr": 0.1125,
+          "fpr": 0.0186
+        },
+        {
+          "class": "Fear",
+          "support": 74,
+          "train_share": 0.0229,
+          "true_share": 0.0241,
+          "pred_share": 0.0231,
+          "precision": 0.662,
+          "recall": 0.6351,
+          "f1": 0.6483,
+          "fnr": 0.3649,
+          "fpr": 0.008
+        },
+        {
+          "class": "Disgust",
+          "support": 160,
+          "train_share": 0.0584,
+          "true_share": 0.0522,
+          "pred_share": 0.0528,
+          "precision": 0.7284,
+          "recall": 0.7375,
+          "f1": 0.7329,
+          "fnr": 0.2625,
+          "fpr": 0.0151
+        },
+        {
+          "class": "Happiness",
+          "support": 1185,
+          "train_share": 0.3889,
+          "true_share": 0.3862,
+          "pred_share": 0.3755,
+          "precision": 0.9661,
+          "recall": 0.9392,
+          "f1": 0.9525,
+          "fnr": 0.0608,
+          "fpr": 0.0207
+        },
+        {
+          "class": "Sadness",
+          "support": 478,
+          "train_share": 0.1615,
+          "true_share": 0.1558,
+          "pred_share": 0.162,
+          "precision": 0.8531,
+          "recall": 0.887,
+          "f1": 0.8697,
+          "fnr": 0.113,
+          "fpr": 0.0282
+        },
+        {
+          "class": "Anger",
+          "support": 162,
+          "train_share": 0.0575,
+          "true_share": 0.0528,
+          "pred_share": 0.0515,
+          "precision": 0.8354,
+          "recall": 0.8148,
+          "f1": 0.825,
+          "fnr": 0.1852,
+          "fpr": 0.0089
+        },
+        {
+          "class": "Neutral",
+          "support": 680,
+          "train_share": 0.2057,
+          "true_share": 0.2216,
+          "pred_share": 0.2233,
+          "precision": 0.8745,
+          "recall": 0.8809,
+          "f1": 0.8777,
+          "fnr": 0.1191,
+          "fpr": 0.036
+        }
+      ],
+      "summary": {
+        "classes_evaluated": 7,
+        "balanced_accuracy": 0.826,
+        "macro_f1": 0.825,
+        "worst_recall_class": "Fear",
+        "worst_recall": 0.6351,
+        "best_recall_class": "Happiness",
+        "best_recall": 0.9392,
+        "recall_gap": 0.3041,
+        "recall_ratio": 0.6762,
+        "recall_std": 0.0984,
+        "worst_f1_class": "Fear",
+        "worst_f1": 0.6483,
+        "f1_gap": 0.3042,
+        "fpr_gap": 0.028,
+        "max_prediction_bias": [
+          "Happiness",
+          -0.0107
+        ],
+        "passes_four_fifths": false,
+        "accuracy": 0.8882,
+        "accuracy_minus_balanced": 0.0622,
+        "minority_classes": [
+          "Fear",
+          "Disgust",
+          "Anger"
+        ],
+        "minority_mean_recall": 0.7291,
+        "majority_mean_recall": 0.8987,
+        "minority_recall_gap": 0.1696
+      }
+    },
+    {
+      "name": "ensemble (no calibration)",
+      "per_class": [
+        {
+          "class": "Surprise",
+          "support": 329,
+          "train_share": 0.1051,
+          "true_share": 0.1072,
+          "pred_share": 0.1118,
+          "precision": 0.8513,
+          "recall": 0.8875,
+          "f1": 0.869,
+          "fnr": 0.1125,
+          "fpr": 0.0186
+        },
+        {
+          "class": "Fear",
+          "support": 74,
+          "train_share": 0.0229,
+          "true_share": 0.0241,
+          "pred_share": 0.0231,
+          "precision": 0.662,
+          "recall": 0.6351,
+          "f1": 0.6483,
+          "fnr": 0.3649,
+          "fpr": 0.008
+        },
+        {
+          "class": "Disgust",
+          "support": 160,
+          "train_share": 0.0584,
+          "true_share": 0.0522,
+          "pred_share": 0.0528,
+          "precision": 0.7284,
+          "recall": 0.7375,
+          "f1": 0.7329,
+          "fnr": 0.2625,
+          "fpr": 0.0151
+        },
+        {
+          "class": "Happiness",
+          "support": 1185,
+          "train_share": 0.3889,
+          "true_share": 0.3862,
+          "pred_share": 0.3755,
+          "precision": 0.9661,
+          "recall": 0.9392,
+          "f1": 0.9525,
+          "fnr": 0.0608,
+          "fpr": 0.0207
+        },
+        {
+          "class": "Sadness",
+          "support": 478,
+          "train_share": 0.1615,
+          "true_share": 0.1558,
+          "pred_share": 0.162,
+          "precision": 0.8531,
+          "recall": 0.887,
+          "f1": 0.8697,
+          "fnr": 0.113,
+          "fpr": 0.0282
+        },
+        {
+          "class": "Anger",
+          "support": 162,
+          "train_share": 0.0575,
+          "true_share": 0.0528,
+          "pred_share": 0.0515,
+          "precision": 0.8354,
+          "recall": 0.8148,
+          "f1": 0.825,
+          "fnr": 0.1852,
+          "fpr": 0.0089
+        },
+        {
+          "class": "Neutral",
+          "support": 680,
+          "train_share": 0.2057,
+          "true_share": 0.2216,
+          "pred_share": 0.2233,
+          "precision": 0.8745,
+          "recall": 0.8809,
+          "f1": 0.8777,
+          "fnr": 0.1191,
+          "fpr": 0.036
+        }
+      ],
+      "summary": {
+        "classes_evaluated": 7,
+        "balanced_accuracy": 0.826,
+        "macro_f1": 0.825,
+        "worst_recall_class": "Fear",
+        "worst_recall": 0.6351,
+        "best_recall_class": "Happiness",
+        "best_recall": 0.9392,
+        "recall_gap": 0.3041,
+        "recall_ratio": 0.6762,
+        "recall_std": 0.0984,
+        "worst_f1_class": "Fear",
+        "worst_f1": 0.6483,
+        "f1_gap": 0.3042,
+        "fpr_gap": 0.028,
+        "max_prediction_bias": [
+          "Happiness",
+          -0.0107
+        ],
+        "passes_four_fifths": false,
+        "accuracy": 0.8882,
+        "accuracy_minus_balanced": 0.0622,
+        "minority_classes": [
+          "Fear",
+          "Disgust",
+          "Anger"
+        ],
+        "minority_mean_recall": 0.7291,
+        "majority_mean_recall": 0.8987,
+        "minority_recall_gap": 0.1696
+      }
+    },
+    {
+      "name": "with fairness: ensemble + per-class calibration (DEPLOYED)",
+      "per_class": [
+        {
+          "class": "Surprise",
+          "support": 329,
+          "train_share": 0.1051,
+          "true_share": 0.1072,
+          "pred_share": 0.1177,
+          "precision": 0.8255,
+          "recall": 0.9058,
+          "f1": 0.8638,
+          "fnr": 0.0942,
+          "fpr": 0.023
+        },
+        {
+          "class": "Fear",
+          "support": 74,
+          "train_share": 0.0229,
+          "true_share": 0.0241,
+          "pred_share": 0.0179,
+          "precision": 0.7818,
+          "recall": 0.5811,
+          "f1": 0.6667,
+          "fnr": 0.4189,
+          "fpr": 0.004
+        },
+        {
+          "class": "Disgust",
+          "support": 160,
+          "train_share": 0.0584,
+          "true_share": 0.0522,
+          "pred_share": 0.0522,
+          "precision": 0.7312,
+          "recall": 0.7312,
+          "f1": 0.7312,
+          "fnr": 0.2688,
+          "fpr": 0.0148
+        },
+        {
+          "class": "Happiness",
+          "support": 1185,
+          "train_share": 0.3889,
+          "true_share": 0.3862,
+          "pred_share": 0.3771,
+          "precision": 0.9646,
+          "recall": 0.9418,
+          "f1": 0.953,
+          "fnr": 0.0582,
+          "fpr": 0.0218
+        },
+        {
+          "class": "Sadness",
+          "support": 478,
+          "train_share": 0.1615,
+          "true_share": 0.1558,
+          "pred_share": 0.1633,
+          "precision": 0.8483,
+          "recall": 0.8891,
+          "f1": 0.8682,
+          "fnr": 0.1109,
+          "fpr": 0.0293
+        },
+        {
+          "class": "Anger",
+          "support": 162,
+          "train_share": 0.0575,
+          "true_share": 0.0528,
+          "pred_share": 0.0522,
+          "precision": 0.8562,
+          "recall": 0.8457,
+          "f1": 0.8509,
+          "fnr": 0.1543,
+          "fpr": 0.0079
+        },
+        {
+          "class": "Neutral",
+          "support": 680,
+          "train_share": 0.2057,
+          "true_share": 0.2216,
+          "pred_share": 0.2197,
+          "precision": 0.8828,
+          "recall": 0.875,
+          "f1": 0.8789,
+          "fnr": 0.125,
+          "fpr": 0.0331
+        }
+      ],
+      "summary": {
+        "classes_evaluated": 7,
+        "balanced_accuracy": 0.8242,
+        "macro_f1": 0.8304,
+        "worst_recall_class": "Fear",
+        "worst_recall": 0.5811,
+        "best_recall_class": "Happiness",
+        "best_recall": 0.9418,
+        "recall_gap": 0.3607,
+        "recall_ratio": 0.617,
+        "recall_std": 0.1168,
+        "worst_f1_class": "Fear",
+        "worst_f1": 0.6667,
+        "f1_gap": 0.2863,
+        "fpr_gap": 0.0291,
+        "max_prediction_bias": [
+          "Surprise",
+          0.0105
+        ],
+        "passes_four_fifths": false,
+        "accuracy": 0.8902,
+        "accuracy_minus_balanced": 0.066,
+        "minority_classes": [
+          "Fear",
+          "Disgust",
+          "Anger"
+        ],
+        "minority_mean_recall": 0.7193,
+        "majority_mean_recall": 0.9029,
+        "minority_recall_gap": 0.1836
+      }
+    }
+  ],
+  "definition": "Emotion classes treated as groups (no demographic labels). Recall ratio >= 0.80 = four-fifths rule.",
+  "baseline": {
+    "name": "WITHOUT fairness: emotion_r50_nofair (no weights, acc. selection)",
+    "per_class": [
+      {
+        "class": "Surprise",
+        "support": 329,
+        "train_share": 0.1051,
+        "true_share": 0.1072,
+        "pred_share": 0.1108,
+        "precision": 0.8647,
+        "recall": 0.8936,
+        "f1": 0.8789,
+        "fnr": 0.1064,
+        "fpr": 0.0168
+      },
+      {
+        "class": "Fear",
+        "support": 74,
+        "train_share": 0.0229,
+        "true_share": 0.0241,
+        "pred_share": 0.0238,
+        "precision": 0.6712,
+        "recall": 0.6622,
+        "f1": 0.6667,
+        "fnr": 0.3378,
+        "fpr": 0.008
+      },
+      {
+        "class": "Disgust",
+        "support": 160,
+        "train_share": 0.0584,
+        "true_share": 0.0522,
+        "pred_share": 0.0564,
+        "precision": 0.7168,
+        "recall": 0.775,
+        "f1": 0.7447,
+        "fnr": 0.225,
+        "fpr": 0.0169
+      },
+      {
+        "class": "Happiness",
+        "support": 1185,
+        "train_share": 0.3889,
+        "true_share": 0.3862,
+        "pred_share": 0.3807,
+        "precision": 0.9589,
+        "recall": 0.9451,
+        "f1": 0.952,
+        "fnr": 0.0549,
+        "fpr": 0.0255
+      },
+      {
+        "class": "Sadness",
+        "support": 478,
+        "train_share": 0.1615,
+        "true_share": 0.1558,
+        "pred_share": 0.1538,
+        "precision": 0.8729,
+        "recall": 0.8619,
+        "f1": 0.8674,
+        "fnr": 0.1381,
+        "fpr": 0.0232
+      },
+      {
+        "class": "Anger",
+        "support": 162,
+        "train_share": 0.0575,
+        "true_share": 0.0528,
+        "pred_share": 0.0495,
+        "precision": 0.8816,
+        "recall": 0.8272,
+        "f1": 0.8535,
+        "fnr": 0.1728,
+        "fpr": 0.0062
+      },
+      {
+        "class": "Neutral",
+        "support": 680,
+        "train_share": 0.2057,
+        "true_share": 0.2216,
+        "pred_share": 0.2249,
+        "precision": 0.8594,
+        "recall": 0.8721,
+        "f1": 0.8657,
+        "fnr": 0.1279,
+        "fpr": 0.0406
+      }
+    ],
+    "summary": {
+      "classes_evaluated": 7,
+      "balanced_accuracy": 0.8339,
+      "macro_f1": 0.8327,
+      "worst_recall_class": "Fear",
+      "worst_recall": 0.6622,
+      "best_recall_class": "Happiness",
+      "best_recall": 0.9451,
+      "recall_gap": 0.2829,
+      "recall_ratio": 0.7007,
+      "recall_std": 0.0855,
+      "worst_f1_class": "Fear",
+      "worst_f1": 0.6667,
+      "f1_gap": 0.2853,
+      "fpr_gap": 0.0344,
+      "max_prediction_bias": [
+        "Happiness",
+        -0.0055
+      ],
+      "passes_four_fifths": false,
+      "accuracy": 0.8885,
+      "accuracy_minus_balanced": 0.0546,
+      "minority_classes": [
+        "Fear",
+        "Disgust",
+        "Anger"
+      ],
+      "minority_mean_recall": 0.7548,
+      "majority_mean_recall": 0.8932,
+      "minority_recall_gap": 0.1384
+    },
+    "role": "without_fairness"
+  },
+  "with_vs_without": {
+    "metrics": {
+      "accuracy": {
+        "label": "Accuracy",
+        "without": 0.8885,
+        "with": 0.8782,
+        "change": -0.0103
+      },
+      "balanced_accuracy": {
+        "label": "Balanced accuracy",
+        "without": 0.8339,
+        "with": 0.8364,
+        "change": 0.0025
+      },
+      "macro_f1": {
+        "label": "Macro-F1",
+        "without": 0.8327,
+        "with": 0.8133,
+        "change": -0.0194
+      },
+      "worst_recall": {
+        "label": "Worst-class recall",
+        "without": 0.6622,
+        "with": 0.6946,
+        "change": 0.0324
+      },
+      "recall_gap": {
+        "label": "Recall gap (best - worst)",
+        "without": 0.2829,
+        "with": 0.2278,
+        "change": -0.0551
+      },
+      "recall_ratio": {
+        "label": "Recall ratio (worst / best)",
+        "without": 0.7007,
+        "with": 0.753,
+        "change": 0.0523
+      },
+      "minority_mean_recall": {
+        "label": "Minority-class mean recall",
+        "without": 0.7548,
+        "with": 0.7771,
+        "change": 0.0223
+      }
+    },
+    "per_class_recall": {
+      "Surprise": {
+        "without": 0.8936,
+        "with": 0.8997,
+        "change": 0.0061,
+        "train_share": 0.1051
+      },
+      "Fear": {
+        "without": 0.6622,
+        "with": 0.6946,
+        "change": 0.0324,
+        "train_share": 0.0229
+      },
+      "Disgust": {
+        "without": 0.775,
+        "with": 0.7625,
+        "change": -0.0125,
+        "train_share": 0.0584
+      },
+      "Happiness": {
+        "without": 0.9451,
+        "with": 0.9224,
+        "change": -0.0227,
+        "train_share": 0.3889
+      },
+      "Sadness": {
+        "without": 0.8619,
+        "with": 0.887,
+        "change": 0.0251,
+        "train_share": 0.1615
+      },
+      "Anger": {
+        "without": 0.8272,
+        "with": 0.8741,
+        "change": 0.0469,
+        "train_share": 0.0575
+      },
+      "Neutral": {
+        "without": 0.8721,
+        "with": 0.875,
+        "change": 0.0029,
+        "train_share": 0.2057
+      }
+    },
+    "four_fifths": {
+      "without": false,
+      "with": false
+    }
+  }
+}
